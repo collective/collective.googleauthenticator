@@ -9,6 +9,7 @@
 dist
 build
 builddocs
+builddocs.zip
 eggs
 parts
 bin
