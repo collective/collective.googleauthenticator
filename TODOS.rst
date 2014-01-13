@@ -14,7 +14,6 @@ Must haves
   an overlay has been commented out. Make Google Authenticator working with overlays.
 - Fallback code in GoogleAuthenticator setup and recover.
 - Better documentation.
-- Change everywhere to "Two-step verification".
 
 Should haves
 ------------------------------------------------
