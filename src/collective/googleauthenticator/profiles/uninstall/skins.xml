@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<object name="portal_skins">
+    <object name="googleauthenticator_custom"
+        meta_type="Filesystem Directory View"
+        remove="True"/>
+    <skin-path name="*">
+    <layer name="googleauthenticator_custom"
+        remove="True"/>
+    </skin-path>
+</object>

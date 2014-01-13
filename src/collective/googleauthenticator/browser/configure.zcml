@@ -1,0 +1,63 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    i18n_domain="collective.googleauthenticator">
+
+    <i18n:registerTranslations directory="../locales" />
+    
+    <browser:resourceDirectory
+        name="collective.googleauthenticator"
+        directory="static"
+        />
+
+    <!-- Disable two-step verification -->
+    <browser:page
+        name="disable-two-factor-authentication"
+        class=".disable_two_factor_authentication.DisableTwoFactorAuthentication"
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        attribute="disable"
+        permission="zope2.View"
+        />
+
+    <!-- -*- token validation form -*- -->
+    <browser:page
+        name="google-authenticator-token"
+        for="*"
+        permission="zope2.View"
+        class=".forms.token.TokenFormView"
+        />
+
+    <!-- -*- Request bar-code reset -*- -->
+    <browser:page
+        name="request-bar-code-reset"
+        for="*"
+        permission="zope2.View"
+        class=".forms.request_bar_code_reset.RequestBarCodeResetFormView"
+        />
+
+    <!-- -*- Reset bar-code -*- -->
+    <browser:page
+        name="reset-bar-code"
+        for="*"
+        permission="zope2.View"
+        class=".forms.reset_bar_code.ResetBarCodeFormView"
+        />
+
+    <!-- -*- setup form -*- -->
+    <browser:page
+        name="setup-two-factor-authentication"
+        for="*"
+        permission="zope2.View"
+        class=".forms.user_setup.SetupFormView"
+        />
+
+    <!-- Control panel -->
+    <browser:page
+        name="google-authenticator-settings"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class=".controlpanel.GoogleAuthenticatorSettingsControlPanel"
+        permission="cmf.ManagePortal"
+        />
+
+</configure>

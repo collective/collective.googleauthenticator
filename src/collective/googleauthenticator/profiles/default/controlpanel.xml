@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<object
+    name="portal_controlpanel"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain="collective.googleauthenticator"
+    purge="False">
+
+    <configlet
+        title="Google Authenticator"
+        action_id="google_authenticator_settings"
+        appId="collective.googleauthenticator"
+        category="Products"
+        condition_expr=""
+        url_expr="string:${portal_url}/@@google-authenticator-settings"
+        visible="True"
+        i18n:attributes="title">
+            <permission>Manage portal</permission>
+    </configlet>
+
+</object>

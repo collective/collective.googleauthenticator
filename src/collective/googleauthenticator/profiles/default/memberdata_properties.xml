@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<object name="portal_memberdata" meta_type="Plone Memberdata Tool">
+  <property name="enable_two_factor_authentication" type="boolean">False</property>
+  <property name="two_factor_authentication_secret" type="string"></property>
+  <property name="bar_code_reset_token" type="string"></property>
+</object>
