@@ -1,8 +1,7 @@
 Changelog
-=========
+================================================
 
-0.1-dev (unreleased)
---------------------
+0.1 (13-01-2014)
+------------------------------------------------
 
-- Package created using templer
-  [Artur Barseghyan for Goldmund, Wyldebeast & Wunderliebe]
+- Initial release.
