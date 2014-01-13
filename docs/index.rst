@@ -166,6 +166,13 @@ Tested in combination with the following products:
 - The `Products.LoginLockout` (https://pypi.python.org/pypi/Products.LoginLockout). `GoogleAuthenticator`
   comes as first, `LoginLockout` as second. All works fine.
 
+Documentation
+================================================
+See the documentation at:
+
+- http://collectivegoogleauthenticator.readthedocs.org/en/latest/
+- http://pythonhosted.org/collective.googleauthenticator/
+
 Development status
 ================================================
 Beta
