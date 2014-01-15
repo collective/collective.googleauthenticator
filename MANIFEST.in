@@ -1,0 +1,4 @@
+include CHANGES.txt
+include CONTRIBUTORS.txt
+include TODOS
+recursive-include docs/ *

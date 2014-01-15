@@ -1,17 +1,27 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.1'
+version = '0.1.1'
+
+try:
+    readme = open('README.rst').read()
+except:
+    readme = ''
+
+try:
+    changelog = open('CHANGES.txt').read()
+except:
+    changelog = ''
 
 long_description = (
-    open('README.rst').read()
+    readme
     + '\n' +
     #'Contributors\n'
     #'============\n'
     #+ '\n' +
     #open('CONTRIBUTORS.txt').read()
     #+ '\n' +
-    open('CHANGES.txt').read()
+    changelog
 + '\n')
 
 setup(
