@@ -2,4 +2,4 @@ include CHANGES.txt
 include CONTRIBUTORS.txt
 include README.rst
 include TODOS.rst
-recursive-include src *.zcml
+recursive-include src *.zcml, *.pot, *.po, *.css, *.js, *.xml, *.txt, *.cpt, *.pt, *.metadata, *.zpt, *.sh
