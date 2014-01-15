@@ -3,3 +3,9 @@ include CONTRIBUTORS.txt
 include README.rst
 include TODOS.rst
 recursive-include src *.zcml, *.pot, *.po, *.css, *.js, *.xml, *.txt, *.cpt, *.pt, *.metadata, *.zpt, *.sh
+recursive-include src/collective/googleauthenticator/locales/nl *
+recursive-include src/collective/googleauthenticator/skins/googleauthenticator_custom *
+recursive-include src/collective/googleauthenticator/profiles/default *
+recursive-include src/collective/googleauthenticator/profiles/uninstall *
+recursive-include src/collective/googleauthenticator/browser/static *
+recursive-include src/collective/googleauthenticator/www *
