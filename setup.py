@@ -1,10 +1,11 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.1.1'
+version = '0.2'
 
 try:
     readme = open('README.rst').read()
+    readme = readme.replace('.. image:: _static', '.. figure:: https://github.com/collective/collective.googleauthenticator/raw/master/docs/_static')
 except:
     readme = ''
 
@@ -37,6 +38,7 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords = 'google authenticator, two-step verification, multi-factor authentication, two-factor authentication',

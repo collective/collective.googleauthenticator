@@ -13,7 +13,9 @@ Must haves
   "popupforms.js" has been overridden by a custom one, where the part of login forms being shown in
   an overlay has been commented out. Make Google Authenticator working with overlays.
 - Fallback code in GoogleAuthenticator setup and recover.
-- Better documentation.
+- When GoogleAuthenticator is skipped (white-listed address or user that doesn't have it enabled),
+  the came_from functionality doesn't work.
+- On disable two-step verification, redirect user to where he was.
 
 Should haves
 ------------------------------------------------

@@ -1,7 +1,23 @@
 Changelog
 ================================================
-
-0.1 (13-01-2014)
+0.2
 ------------------------------------------------
+23-01-2014
 
-- Initial release.
+- Now admins are able to force the two-step verification for all users (app control panel).
+- Omit two-step verification for white-listed IP addresses (app control panel).
+- Links to enable/disable two-step verification moved from "Personal preferences" page to 
+  Plone menu (next to "Log out").
+
+0.1.1
+------------------------------------------------
+15-01-2014
+
+- Fixes in manifest.
+
+0.1
+------------------------------------------------
+13-01-2014
+
+- Initial release (no longer available on PyPI), with two-step verification, bar-code/token recover,
+  basic app control panel.

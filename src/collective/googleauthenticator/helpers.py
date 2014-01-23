@@ -6,7 +6,6 @@ from uuid import uuid4
 from urllib import urlencode, unquote, quote
 from urlparse import urlparse
 from urlparse import urlparse
-from base64 import b32encode
 import logging
 
 from zope.component import getUtility
@@ -238,6 +237,26 @@ def get_ska_secret_key(request=None, user=None, use_browser_hash=True):
 
     return "{0}{1}{2}".format(user_secret, browser_hash, ska_secret_key)
 
+def is_two_factor_authentication_globally_enabled():
+    """
+    Checks if the two factor authentication is globally enabled.
+
+    :return bool:
+    """
+    settings = get_app_settings()
+    return settings.globally_enabled
+
+def get_white_listed_ip_addresses():
+    """
+    Gets list of white-listed IP addresses.
+
+    :return list:
+    """
+    settings = get_app_settings()
+    ip_addresses = settings.ip_addresses_whitelist
+    ip_addresses_list = ip_addresses.split('\n')
+    return ip_addresses_list
+
 def sign_user_data(request=None, user=None, url='@@google-authenticator-token'):
     """
     Signs the user data with `ska` package. The secret key is `secret_key` to be used with `ska` is a
@@ -257,6 +276,9 @@ def sign_user_data(request=None, user=None, url='@@google-authenticator-token'):
 
     if user is None:
         user = api.user.get_current()
+
+    # Make sure the secret key always exists
+    get_or_create_secret(user)
 
     secret_key = get_ska_secret_key(request=request, user=user)
     signed_url = sign_url(
@@ -350,7 +372,108 @@ def has_enabled_two_factor_authentication(user):
     :param Products.PlonePAS.tools.memberdata user:
     :return bool:
     """
+    if bool(api.user.is_anonymous()) is True:
+        return None
+
     try:
         return user.getProperty('enable_two_factor_authentication', False)
     except Exception as e:
-        return False
+        return None
+
+def enable_two_factor_authentication_for_users(users=[]):
+    """
+    Enable two-factor authentication for the list of users given.
+    """
+    if not users:
+        users = api.user.get_users()
+
+    for user in users:
+        try:
+            get_or_create_secret(user)
+            if not has_enabled_two_factor_authentication(user):
+                user.setMemberProperties(mapping={'enable_two_factor_authentication': True,})
+        except Exception as e:
+            logger.debug(str(e))
+
+def disable_two_factor_authentication_for_users(users=[]):
+    """
+    Disable two-factor authentication for the list of users given.
+    """
+    if not users:
+        users = api.user.get_users()
+
+    for user in users:
+        try:
+            #get_or_create_secret(user)
+            if has_enabled_two_factor_authentication(user):
+                user.setMemberProperties(mapping={'enable_two_factor_authentication': False,})
+        except Exception as e:
+            logger.debug(str(e))
+
+def extract_ip_address_from_request(request=None):
+    """
+    Extracts client's IP address from request. This is not the safest solution, since client
+    may change headers.
+
+    :param ZPublisher.HTTPRequest request:
+    :return string:
+    """
+    if not request:
+        request = getRequest()
+
+    PRIVATE_IPS_PREFIX = ('10.', '172.', '192.', )
+    ip = request.get('REMOTE_ADDR')
+    x_forwarded_for = request.get('HTTP_X_FORWARDED_FOR')
+
+    if x_forwarded_for:
+        proxies = [prox.strip() for proxy in x_forwarded_for.split(',')]
+
+        # Remove the private ips from the beginning
+        while (len(proxies) > 0 and proxies[0].startswith(PRIVATE_IPS_PREFIX)):
+            proxies.pop(0)
+
+        # Take the first ip which is not a private one (of a proxy)
+        if len(proxies) > 0:
+            ip = proxies[0]
+
+    return ip
+
+def get_ip_addresses_whitelist(request=None):
+    """
+    Gets IP addresses white list.
+
+    :param ZPublisher.HTTPRequest request:
+    :return list:
+    """
+    if not request:
+        request = getRequest()
+
+    settings = get_app_settings()
+
+    ip_addresses_whitelist = settings.ip_addresses_whitelist
+
+    if ip_addresses_whitelist:
+        try:
+            ip_addresses_whitelist = ip_addresses_whitelist.split('\n')
+            ip_addresses_whitelist = [ip_address.strip() for ip_address in ip_addresses_whitelist]
+        except Exception as e:
+            logger.debug(str(e))
+            ip_addresses_whitelist = []
+
+    return ip_addresses_whitelist or []
+
+def is_whitelisted_client(request=None):
+    """
+    Checks if client's IP address is whitelisted.
+
+    :param ZPublisher.HTTPRequest request:
+    :return bool:
+    """
+    ip_addresses_whitelist = get_ip_addresses_whitelist(request=request)
+
+    ip_address = extract_ip_address_from_request(request=request)
+
+    if ip_address in ip_addresses_whitelist:
+        return True
+
+    return False

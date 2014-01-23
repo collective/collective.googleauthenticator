@@ -92,8 +92,8 @@ class ResetBarCodeForm(form.SchemaForm):
         # Validating the GoogleAuthenticator app token
         valid_token = validate_token(token, user=user)
 
-        self.context.plone_log(valid_token)
-        self.context.plone_log(token)
+        #self.context.plone_log(valid_token)
+        #self.context.plone_log(token)
 
         reason = None
         if valid_token:
@@ -133,7 +133,6 @@ class ResetBarCodeForm(form.SchemaForm):
         - Token (`signature` param) is matched to the one obtained from user records. If matched, the
           bar-code image is reset (security token is reset and saved in the users' profile).
         """
-        #import ipdb; ipdb.set_trace()
         # Adding a proper description (with bar code image)
         barcode_field = self.fields.get('qr_code')
 

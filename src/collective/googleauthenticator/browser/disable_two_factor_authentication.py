@@ -19,6 +19,10 @@ class DisableTwoFactorAuthentication(BrowserView):
         """
         Disable the two-step verification for the user and redirect back to the `@@personal-information`.
         """
+        if bool(api.user.is_anonymous()) is True:
+            self.request.response.setStatus(401, _('Forbidden for anonymous'), True)
+            return None
+
         user = api.user.get_current()
         user.setMemberProperties(
             mapping = {

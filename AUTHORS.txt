@@ -2,4 +2,5 @@ Authors are listed in alphabetic order (by name):
 
 - Artur Barseghyan
 - Kim Chee Leong
+- Pawel Lewicki
 - Peter Uittenbroek

@@ -57,4 +57,11 @@
 
     <cmf:registerDirectory name="skins" directory="skins" recursive="True" />
 
+    <!-- -*- Event fired on user creation -*- -->
+    <subscriber
+       for="Products.PluggableAuthService.interfaces.authservice.IBasicUser
+            Products.PluggableAuthService.interfaces.events.IPrincipalCreatedEvent"
+       handler=".userdataschema.userCreatedHandler"
+       />
+
 </configure>

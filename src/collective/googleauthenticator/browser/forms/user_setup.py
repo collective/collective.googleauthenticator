@@ -55,6 +55,10 @@ class SetupForm(form.SchemaForm):
 
     @button.buttonAndHandler(_('Verify'))
     def handleSubmit(self, action):
+        if bool(api.user.is_anonymous()) is True:
+            self.request.response.setStatus(401, _('Forbidden for anonymous'), True)
+            return False
+
         data, errors = self.extractData()
         if errors:
             return False
@@ -63,8 +67,8 @@ class SetupForm(form.SchemaForm):
 
         valid_token = validate_token(token)
 
-        self.context.plone_log(valid_token)
-        self.context.plone_log(token)
+        #self.context.plone_log(valid_token)
+        #self.context.plone_log(token)
 
         reason = None
         if valid_token:
@@ -93,15 +97,16 @@ class SetupForm(form.SchemaForm):
 
     def updateFields(self, *args, **kwargs):
         """
+        Bar code image is applied here.
         """
-        #import ipdb; ipdb.set_trace()
-        # Adding a proper description (with bar code image)
-        barcode_field = self.fields.get('qr_code')
-        if barcode_field:
-            barcode_field.field.description = _(get_token_description())
+        if bool(api.user.is_anonymous()) is False:
 
-        return super(SetupForm, self).updateFields(*args, **kwargs)
+            # Adding a proper description (with bar code image)
+            barcode_field = self.fields.get('qr_code')
+            if barcode_field:
+                barcode_field.field.description = _(get_token_description())
 
+            return super(SetupForm, self).updateFields(*args, **kwargs)
 
 # View for the ``SetupForm``.
 SetupFormView = wrap_form(SetupForm)

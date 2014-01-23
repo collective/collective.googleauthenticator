@@ -71,9 +71,7 @@ class TokenForm(form.SchemaForm):
         user = None
         username = self.request.get('auth_user', '')
 
-        #self.context.plone_log('Getting the username...')
         if username:
-            #self.context.plone_log('Getting the user...')
             user = api.user.get(username=username)
 
             # Validating the signed request data. If invalid (likely throttled with or expired), generate an
@@ -87,12 +85,11 @@ class TokenForm(form.SchemaForm):
 
         valid_token = validate_token(token, user=user)
 
-        self.context.plone_log(valid_token)
-        self.context.plone_log(token)
+        #self.context.plone_log(valid_token)
+        #self.context.plone_log(token)
 
         if valid_token:
             # We should login the user here
-            #self.context.plone_log('Yep! Almost done. :)')
             self.context.acl_users.session._setupSession(str(username), self.context.REQUEST.RESPONSE)
 
             # TODO: Is there a nicer way of resolving the "@@google_authenticator_token_form" URL?
@@ -124,6 +121,7 @@ class TokenForm(form.SchemaForm):
                 )
 
         return super(TokenForm, self).updateFields(*args, **kwargs)
+
 
 # View for the ``TokenForm``.
 TokenFormView = wrap_form(TokenForm)

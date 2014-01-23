@@ -20,6 +20,9 @@ develop-eggs
 lib
 lib64
 .gitignore~
+.hgignore~
+.hg/
+.hgtags
 
 # Installer logs
 pip-log.txt

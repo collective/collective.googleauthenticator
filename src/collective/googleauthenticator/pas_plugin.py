@@ -21,7 +21,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.CMFCore.utils import getToolByName
 
 from collective.googleauthenticator.adapter import ICameFrom
-from collective.googleauthenticator.helpers import sign_user_data
+from collective.googleauthenticator.helpers import sign_user_data, is_whitelisted_client
 
 logger = logging.getLogger("collective.googleauthenticator")
 
@@ -76,7 +76,7 @@ class GoogleAuthenticatorPlugin(BasePlugin):
         logger.debug("Found user: {0}".format(user.getProperty('username')))
 
         two_factor_authentication_enabled = user.getProperty('enable_two_factor_authentication')
-        logger.debug("Two-step verification: {0}".format(two_factor_authentication_enabled))
+        logger.debug("Two-step verification enabled: {0}".format(two_factor_authentication_enabled))
 
         if two_factor_authentication_enabled:
             # First see, if the password is correct.
@@ -85,12 +85,16 @@ class GoogleAuthenticatorPlugin(BasePlugin):
             try:
                 # This is where the password check is made.
                 plone_auth_user = mt.authenticate(login, password, self.REQUEST)
+
             except Exception as e:
                 plone_auth_user = None
 
             if not plone_auth_user:
                 # Password check failed.
                 return None
+
+            if is_whitelisted_client():
+                return (None, None)
 
             # Setting the data in the session doesn't seem to work. That's why we use the `ska` package.
             # The secret key would be then a combination of username, secret stored in users' profile
@@ -115,7 +119,7 @@ class GoogleAuthenticatorPlugin(BasePlugin):
         if credentials.get('extractor') != self.getId():
             return (None, None)
 
-        return (login, login)
+        return (None, None)
 
 
 classImplements(GoogleAuthenticatorPlugin, IAuthenticationPlugin)

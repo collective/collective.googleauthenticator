@@ -60,4 +60,57 @@
         permission="cmf.ManagePortal"
         />
 
+    <!-- Control panel helper -->
+    <browser:page
+        name="google-authenticator-enable-for-all-users"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class=".enable_two_factor_authentication_for_all_users.EnableTwoFactorAuthenticationForAllUsers"
+        attribute="index"
+        permission="cmf.ManagePortal"
+        />
+
+    <!-- Control panel helper -->
+    <browser:page
+        name="google-authenticator-disable-for-all-users"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class=".disable_two_factor_authentication_for_all_users.DisableTwoFactorAuthenticationForAllUsers"
+        attribute="index"
+        permission="cmf.ManagePortal"
+        />
+
+    <!-- -*- additional helper view for checking the global settings -*- -->
+    <browser:page
+        name="is-two-factor-authentication-globally-enabled"
+        class=".settings_helper.SettingsHelper"
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        attribute="is_two_factor_authentication_globally_enabled"
+        permission="zope2.View"
+        />
+
+    <!-- -*- additional helper view for checking the if enable two-factor authentication link should be shown -*- -->
+    <browser:page
+        name="show-enable-two-factor-authentication-link"
+        class=".settings_helper.SettingsHelper"
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        attribute="show_enable_two_factor_authentication_link"
+        permission="zope2.View"
+        />
+
+    <!-- -*- additional helper view for checking the if disable two-factor authentication link should be shown -*- -->
+    <browser:page
+        name="show-disable-two-factor-authentication-link"
+        class=".settings_helper.SettingsHelper"
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        attribute="show_disable_two_factor_authentication_link"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="Products.CMFPlone.Portal.PloneSite"
+        name="personal-information"
+        class="collective.googleauthenticator.userdataschema.CustomizedUserDataPanel"
+        permission="cmf.SetOwnProperties"
+        layer="collective.googleauthenticator.interfaces.IGoogleAuthenticatorLayer"
+        />
+
 </configure>
