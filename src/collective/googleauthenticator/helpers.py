@@ -426,7 +426,7 @@ def extract_ip_address_from_request(request=None):
     x_forwarded_for = request.get('HTTP_X_FORWARDED_FOR')
 
     if x_forwarded_for:
-        proxies = [prox.strip() for proxy in x_forwarded_for.split(',')]
+        proxies = [proxy.strip() for proxy in x_forwarded_for.split(',')]
 
         # Remove the private ips from the beginning
         while (len(proxies) > 0 and proxies[0].startswith(PRIVATE_IPS_PREFIX)):
