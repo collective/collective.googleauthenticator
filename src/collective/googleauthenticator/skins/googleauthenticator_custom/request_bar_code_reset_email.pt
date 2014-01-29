@@ -8,5 +8,5 @@ Subject: <span i18n:domain="collective.googleauthenticator" i18n:translate="" ta
 Content-Type: text/plain; charset=<span tal:replace="python:options['charset']" />
 Dear <span tal:replace="member/getUserName" />:
 You have requested to reset your Google Authenticator bar code.
-Click <a tal:attributes="href python:options['bar_code_reset_url']">here</a> to reset your bar-code.
+Click <a href="{bar_code_reset_url}">here</a> to reset your bar-code.
 </tal:root>

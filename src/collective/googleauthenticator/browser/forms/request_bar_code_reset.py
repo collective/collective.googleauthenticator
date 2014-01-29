@@ -93,6 +93,7 @@ class RequestBarCodeResetForm(form.SchemaForm):
                         bar_code_reset_url = signed_url,
                         charset = 'utf-8'
                         )
+                    mail_text = mail_text.format(bar_code_reset_url=signed_url)
 
                     host.send(
                         mail_text,
