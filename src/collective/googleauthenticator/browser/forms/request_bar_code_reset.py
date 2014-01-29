@@ -96,7 +96,8 @@ class RequestBarCodeResetForm(form.SchemaForm):
 
                     host.send(
                         mail_text,
-                        immediate = True
+                        immediate = True,
+                        msg_type = 'text/html'
                         )
                 except SMTPRecipientsRefused as e:
                     raise SMTPRecipientsRefused('Recipient address rejected by server')
