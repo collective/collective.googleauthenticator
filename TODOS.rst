@@ -16,6 +16,7 @@ Must haves
 - When GoogleAuthenticator is skipped (white-listed address or user that doesn't have it enabled),
   the came_from functionality doesn't work.
 - On disable two-step verification, redirect user to where he was.
+- Get rid of annoying "Sure to leave this page" message when editing the GoogleAuthenticator settings.
 
 Should haves
 ------------------------------------------------
