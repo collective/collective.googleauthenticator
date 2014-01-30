@@ -114,7 +114,7 @@ class GoogleAuthenticatorPlugin(BasePlugin):
 
             response.redirect(signed_url, lock=1)
 
-            return 0
+            return None
 
         if credentials.get('extractor') != self.getId():
             return (None, None)
