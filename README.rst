@@ -128,7 +128,7 @@ ZMI -> acl_users
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1. Choose "google_auth (Google Authenticator plugin (collective.googleauthenticator))".
 
-2. Make sure the "Active plugins" section of "Authentication" has the following plugins in 
+2. Make sure the "Active plugins" section of "Authentication" has the following plugins in
    the given order ("google_auth" should come as first - critical!):
 
     - google_auth
@@ -172,7 +172,7 @@ It's important that Google Authenticator comes as first in the ZMI -> acl_users 
 
 Tested in combination with the following products:
 
-- The `Products.LoginLockout <https://pypi.python.org/pypi/Products.LoginLockout>`_. 
+- The `Products.LoginLockout <https://pypi.python.org/pypi/Products.LoginLockout>`_.
   `GoogleAuthenticator` comes as first, `LoginLockout` as second. All works fine.
 
 Implementation details
@@ -236,3 +236,4 @@ TODOs and Roadmap
 ================================================
 See `TODOS.rst <https://raw.github.com/collective/collective.googleauthenticator/master/TODOS.rst>`_
 file for the list of TODOs.
+
