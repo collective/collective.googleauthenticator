@@ -60,7 +60,7 @@ setup(
         'ska==1.1',
         'rebus==0.1',
     ],
-    extras_require = {'test': ['plone.app.testing', 'robotsuite']},
+    extras_require = {'test': ['plone.app.testing', 'plone.app.robotframework']},
     entry_points = """
         # -*- Entry points: -*-
         [z3c.autoinclude.plugin]
