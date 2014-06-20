@@ -17,6 +17,8 @@ Must haves
   the came_from functionality doesn't work.
 - On disable two-step verification, redirect user to where he was.
 - Get rid of annoying "Sure to leave this page" message when editing the GoogleAuthenticator settings.
+- Take away one step from the process. If user confirms his code, immediately log him in.
+- Add IP logging and admin helper views for viewing the used IPs.
 
 Should haves
 ------------------------------------------------

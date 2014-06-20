@@ -69,7 +69,7 @@ class GoogleAuthenticatorPlugin(BasePlugin):
         password = credentials['password']
 
         if not login:
-            return (None, None)
+            return None
 
         user = api.user.get(username=login)
 
@@ -80,21 +80,20 @@ class GoogleAuthenticatorPlugin(BasePlugin):
 
         if two_factor_authentication_enabled:
             # First see, if the password is correct.
-            mt = getToolByName(self, 'portal_membership')
-            plone_auth_user = None
-            try:
-                # This is where the password check is made.
-                plone_auth_user = mt.authenticate(login, password, self.REQUEST)
-
-            except Exception as e:
-                plone_auth_user = None
-
-            if not plone_auth_user:
-                # Password check failed.
+            # We fetch the user manager plugin to chekc that.
+            auth_plugins = self._getPAS().plugins.listPlugins( IAuthenticationPlugin )
+            user_manager = authorized = None
+            for plugid, authplugin in auth_plugins:
+                if 'user' in plugid:
+                    user_manager = authplugin
+                    break
+            if user_manager:
+                authorized = user_manager.authenticateCredentials(credentials)
+            if authorized is None:
                 return None
 
             if is_whitelisted_client():
-                return (None, None)
+                return None
 
             # Setting the data in the session doesn't seem to work. That's why we use the `ska` package.
             # The secret key would be then a combination of username, secret stored in users' profile
@@ -117,9 +116,9 @@ class GoogleAuthenticatorPlugin(BasePlugin):
             return None
 
         if credentials.get('extractor') != self.getId():
-            return (None, None)
+            return None
 
-        return (None, None)
+        return None
 
 
 classImplements(GoogleAuthenticatorPlugin, IAuthenticationPlugin)

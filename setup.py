@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.2.4'
+version = '0.2.5'
 
 try:
     readme = open('README.rst').read()
@@ -54,11 +54,11 @@ setup(
     install_requires = [
         'setuptools',
         # -*- Extra requirements: -*-
-        'plone.api==1.1.0',
+        'plone.api>=1.1.0',
         'plone.directives.form>=1.1',
         'onetimepass==0.2.2',
-        'ska==1.1',
-        'rebus==0.1',
+        'ska>=1.1',
+        'rebus>=0.1',
     ],
     extras_require = {'test': ['plone.app.testing', 'plone.app.robotframework']},
     entry_points = """
