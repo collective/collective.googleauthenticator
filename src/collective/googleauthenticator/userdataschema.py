@@ -3,7 +3,7 @@ import logging
 from plone import api
 
 from zope.component import adapter
-from zope.schema import Bool, TextLine
+from zope.schema import Bool, TextLine, Text
 from zope.i18nmessageid import MessageFactory
 from zope.interface import implements
 
