@@ -29,6 +29,7 @@ class CustomizedUserDataPanel(UserDataPanel):
             'enable_two_factor_authentication',
             'two_factor_authentication_secret',
             'bar_code_reset_token',
+            'ips',
             )
 
 
@@ -69,6 +70,12 @@ class IEnhancedUserDataSchema(IUserDataSchema):
     bar_code_reset_token = TextLine(
         title = _('Token to reset the bar code'),
         description = _('Automatically generated'),
+        required = False,
+    )
+
+    ips = Text(
+        title = _('List of IPs user logged from'),
+        description = _('Automatically generated each time user logs in'),
         required = False,
     )
 

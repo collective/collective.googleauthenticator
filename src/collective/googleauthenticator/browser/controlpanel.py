@@ -4,7 +4,7 @@ from zope.component import getUtility
 
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
-from zope.schema import TextLine, Bool, Text
+from zope.schema import TextLine, Bool, Text, Int
 
 from plone.registry.interfaces import IRegistry
 from plone import api
@@ -32,6 +32,14 @@ class IGoogleAuthenticatorSettings(Interface):
         required = False,
         default = u'',
         )
+
+    ska_token_lifetime = Int(
+        title = _("Token lifetime"),
+        description = _("Authentication token lifetime in seconds."),
+        required = False,
+        default = 300, # 15 minutes
+        )
+
     globally_enabled = Bool(
         title = _("Globally enabled"),
         description = _("If checked, globally enables the two-step verification for all users; "

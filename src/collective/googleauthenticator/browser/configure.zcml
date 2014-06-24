@@ -113,4 +113,22 @@
         layer="collective.googleauthenticator.interfaces.IGoogleAuthenticatorLayer"
         />
 
+    <!-- Control panel helper -->
+    <browser:page
+        name="google-authenticator-show-unique-user-ips"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class=".list_user_ips.ListUniqueUserIPs"
+        template="templates/show_unique_user_ips.pt"
+        permission="cmf.ManagePortal"
+        />
+
+    <!-- Control panel helper -->
+    <browser:page
+        name="google-authenticator-show-all-user-ips"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class=".list_user_ips.ListAllUserIPs"
+        template="templates/show_all_user_ips.pt"
+        permission="cmf.ManagePortal"
+        />
+
 </configure>

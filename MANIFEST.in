@@ -8,6 +8,7 @@ recursive-include src/collective/googleauthenticator/skins/googleauthenticator_c
 recursive-include src/collective/googleauthenticator/profiles/default *
 recursive-include src/collective/googleauthenticator/profiles/uninstall *
 recursive-include src/collective/googleauthenticator/browser/static *
+recursive-include src/collective/googleauthenticator/browser/templates *
 recursive-include src/collective/googleauthenticator/www *
 include src/collective/googleauthenticator/configure.zcml
 include src/collective/googleauthenticator/overrides.zcml

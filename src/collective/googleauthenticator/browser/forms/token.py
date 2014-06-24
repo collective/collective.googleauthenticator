@@ -14,6 +14,7 @@ from plone import api
 from plone.z3cform.layout import wrap_form
 
 from Products.statusmessages.interfaces import IStatusMessage
+from Products.CMFPlone import PloneMessageFactory as __
 
 from collective.googleauthenticator.helpers import validate_token, validate_user_data, extract_request_data
 
@@ -93,7 +94,7 @@ class TokenForm(form.SchemaForm):
             self.context.acl_users.session._setupSession(str(username), self.context.REQUEST.RESPONSE)
 
             # TODO: Is there a nicer way of resolving the "@@google_authenticator_token_form" URL?
-            IStatusMessage(self.request).addStatusMessage(_("Great! You're logged in."), 'info')
+            IStatusMessage(self.request).addStatusMessage(__("Welcome! You are now logged in."), 'info')
             request_data = extract_request_data(self.request)
             redirect_url = request_data.get('next_url', self.context.absolute_url())
             self.request.response.redirect(redirect_url)

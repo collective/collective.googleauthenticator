@@ -56,6 +56,19 @@ class EnhancedUserDataPanelAdapter(UserDataPanelAdapter):
         set_bar_code_reset_token
         )
 
+    # ****************************************************
+    # ******** ``ips`` *****
+    # ****************************************************
+    def get_ips(self):
+        return self.context.getProperty('ips', '')
+
+    def set_ips(self, value):
+        return # Read only
+
+    ips = property(
+        get_ips,
+        set_ips
+        )
 
 class ICameFrom(Interface):
     """

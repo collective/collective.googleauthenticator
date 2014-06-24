@@ -17,7 +17,7 @@ from Products.CMFCore.utils import getToolByName
 
 from ska import Signature, RequestHelper
 
-from collective.googleauthenticator.helpers import get_ska_secret_key
+from collective.googleauthenticator.helpers import get_ska_secret_key, get_ska_token_lifetime
 
 logger = logging.getLogger('collective.googleauthenticator')
 
@@ -64,10 +64,12 @@ class RequestBarCodeResetForm(form.SchemaForm):
                 # using which it should be possible to reset the bar-code. The `signature`
                 # generated should be saved in the user profile `bar_code_reset_token`.
                 ska_secret_key = get_ska_secret_key(request=self.request, user=user)
+                token_lifetime = get_ska_token_lifetime()
+
                 signature = Signature.generate_signature(
                     auth_user = username,
                     secret_key = ska_secret_key,
-                    lifetime = 7200 # 2 hours
+                    lifetime = token_lifetime
                     )
                 request_helper = RequestHelper(
                     signature_param = 'signature',
