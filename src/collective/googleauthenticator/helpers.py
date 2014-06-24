@@ -5,7 +5,7 @@ from hashlib import sha1
 from uuid import uuid4
 from urllib import urlencode, unquote, quote
 from urlparse import urlparse
-from urlparse import urlparse
+import time
 import logging
 
 from zope.component import getUtility

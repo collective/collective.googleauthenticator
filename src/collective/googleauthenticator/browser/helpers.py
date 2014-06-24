@@ -9,7 +9,7 @@ def get_app_links(context):
     return {
         # Settings URL
         'settings_url': '{0}/{1}'.format(context.absolute_url(), '@@google-authenticator-settings'),
-        'settings_text': _("SMS Authenticator configuration"),
+        'settings_text': _("Google Authenticator configuration"),
         # Enable URL
         'enable_url': '{0}/{1}'.format(context.absolute_url(), '@@google-authenticator-enable-for-all-users'),
         'enable_text': _("Enable two-step verification for all users"),

@@ -16,6 +16,8 @@ from z3c.form import form, button
 
 from Products.statusmessages.interfaces import IStatusMessage
 
+from collective.googleauthenticator.browser.helpers import get_app_links
+
 logger = logging.getLogger("collective.googleauthenticator")
 
 _ = MessageFactory('collective.googleauthenticator')
@@ -57,10 +59,17 @@ class IGoogleAuthenticatorSettings(Interface):
         )
 
     fieldset(
-        None,
-        label=None,
-        fields=['ska_secret_key', 'globally_enabled', 'ip_addresses_whitelist',]
+        'main',
+        label=_("Main"),
+        fields=['globally_enabled', 'ip_addresses_whitelist',]
         )
+
+    fieldset(
+        'security',
+        label=_("Security"),
+        fields=['ska_secret_key', 'ska_token_lifetime',]
+        )
+
 
 class GoogleAuthenticatorSettingsEditForm(AutoExtensibleForm, form.EditForm):
     """
@@ -89,13 +98,9 @@ class GoogleAuthenticatorSettingsEditForm(AutoExtensibleForm, form.EditForm):
     def render(self, *args, **kwargs):
         res = super(GoogleAuthenticatorSettingsEditForm, self).render(*args, **kwargs)
         additional_template = self.context.restrictedTraverse('control_panel_extra')
-        additional = additional_template(
-            enable_url = '{0}/{1}'.format(self.context.absolute_url(), '@@google-authenticator-enable-for-all-users'),
-            enable_text = _("Enable two-step verification for all users"),
-            disable_url = '{0}/{1}'.format(self.context.absolute_url(), '@@google-authenticator-disable-for-all-users'),
-            disable_text = _("Disable two-step verification for all users"),
-            charset = 'utf-8',
-            )
+        template_context = get_app_links(self.context)
+        template_context.update({'charset': 'utf-8'})
+        additional = additional_template(**template_context)
         return res + additional
 
     @button.buttonAndHandler(_(u"Save"), name='save')
