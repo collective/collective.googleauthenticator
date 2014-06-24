@@ -6,9 +6,9 @@ from plone import api
 
 from Products.Five import BrowserView
 
-from collective.smsauthenticator.browser.helpers import get_app_links
+from collective.googleauthenticator.browser.helpers import get_app_links
 
-_ = MessageFactory('collective.smsauthenticator')
+_ = MessageFactory('collective.googleauthenticator')
 
 class ListUserIPs(BrowserView):
     """

@@ -13,13 +13,13 @@
                   settings view/get_app_links"
                   >
             <a id="setup-link" tal:attributes="href settings/settings_url" tal:content="settings/settings_text">
-                SMS Authenticator configuration
+                Google Authenticator configuration
             </a>
-            <h1 class="documentFirstHeading" i18n:translate="">SMS Authenticator</h1>
+            <h1 class="documentFirstHeading" i18n:translate="">Google Authenticator</h1>
             <!--<div class="documentDescription" i18n:translate="">All user IPs</div>-->
             <div id="content-core">
                 <p class="discret" i18n:translate="">All user IPs</p>
-                <table class="sms-authenticator-ips-list">
+                <table class="google-authenticator-ips-list">
                     <thead>
                         <tr>
                             <th i18n:translate="">IP</th>
