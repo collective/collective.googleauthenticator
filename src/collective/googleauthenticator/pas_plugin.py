@@ -21,7 +21,6 @@ from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.CMFCore.utils import getToolByName
 
 from collective.googleauthenticator.adapter import ICameFrom
 from collective.googleauthenticator.helpers import is_whitelisted_client
@@ -76,7 +75,6 @@ class GoogleAuthenticatorPlugin(BasePlugin):
         token is valid too, we log the user in.
         """
         login = credentials['login']
-        password = credentials['password']
 
         if not login:
             return None
