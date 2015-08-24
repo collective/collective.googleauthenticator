@@ -4,6 +4,9 @@ Changelog
 ------------------------------------------------
 (unreleased)
 
+- Make sure to handle exceptions in auth plugins properly.
+  [lgraf]
+
 - Consider all authentication plugins when checking credentials.
   [lgraf]
 

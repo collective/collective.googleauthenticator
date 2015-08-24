@@ -17,6 +17,8 @@ from AccessControl.SecurityInfo import ClassSecurityInfo
 
 from plone import api
 
+from Products.PluggableAuthService.PluggableAuthService import reraise
+from Products.PluggableAuthService.PluggableAuthService import _SWALLOWABLE_PLUGIN_EXCEPTIONS
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
@@ -101,7 +103,15 @@ class GoogleAuthenticatorPlugin(BasePlugin):
                     # Avoid infinite recursion
                     continue
 
-                authorized = authplugin.authenticateCredentials(credentials)
+                try:
+                    authorized = authplugin.authenticateCredentials(
+                        credentials)
+                except _SWALLOWABLE_PLUGIN_EXCEPTIONS:
+                    reraise(authplugin)
+                    msg = 'AuthenticationPlugin {0} error'.format(plugid)
+                    logger.info(msg, exc_info=True)
+                    continue
+
                 if authorized is not None:
                     # An auth plugin successfully authenticated the user
                     break
