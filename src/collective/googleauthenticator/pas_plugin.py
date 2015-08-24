@@ -90,17 +90,24 @@ class GoogleAuthenticatorPlugin(BasePlugin):
 
         if two_factor_authentication_enabled:
             # First see, if the password is correct.
-            # We fetch the user manager plugin to chekc that.
+            # We do this by allowing all IAuthenticationPlugin plugins to
+            # authenticate the credentials, and pick the first one that is
+            # successful.
             pas_plugins = self._getPAS().plugins
             auth_plugins = pas_plugins.listPlugins(IAuthenticationPlugin)
-            user_manager = authorized = None
+            authorized = None
             for plugid, authplugin in auth_plugins:
-                if 'user' in plugid:
-                    user_manager = authplugin
+                if plugid == self.getId():
+                    # Avoid infinite recursion
+                    continue
+
+                authorized = authplugin.authenticateCredentials(credentials)
+                if authorized is not None:
+                    # An auth plugin successfully authenticated the user
                     break
-            if user_manager:
-                authorized = user_manager.authenticateCredentials(credentials)
+
             if authorized is None:
+                # No auth plugin was able to authenticate the user
                 return None
 
             if is_whitelisted_client():
