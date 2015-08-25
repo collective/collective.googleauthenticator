@@ -1,5 +1,15 @@
 Changelog
 ================================================
+0.3.0
+------------------------------------------------
+(unreleased)
+
+- Make sure to handle exceptions in auth plugins properly.
+  [lgraf]
+
+- Consider all authentication plugins when checking credentials.
+  [lgraf]
+
 0.2.5
 ------------------------------------------------
 20-06-2014
