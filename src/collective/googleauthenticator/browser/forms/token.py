@@ -15,6 +15,7 @@ from plone.z3cform.layout import wrap_form
 
 from Products.statusmessages.interfaces import IStatusMessage
 
+from collective.googleauthenticator.helpers import drop_login_failed_msg
 from collective.googleauthenticator.helpers import extract_request_data
 from collective.googleauthenticator.helpers import validate_token
 from collective.googleauthenticator.helpers import validate_user_data
@@ -115,15 +116,24 @@ class TokenForm(form.SchemaForm):
 
     def updateFields(self, *args, **kwargs):
         """
-        Here the following happens. Cookie set is cleared. Thus, user is no
-        longer logged in, but only after his Google Authenticator token has
-        been validated.
+        Here we clear the status messages to drop the "Login failed" message
+        that appears because we consumed the credentials in our own
+        IAuthenticationPlugin (after verifying the creds ourselves), and
+        therefore none of the other auth plugins get a chance to log the
+        user in.
+
+        We will do that ourselves in the handleSubmit() above, but only once
+        the user entered a valid token.
         """
         logger.debug("Landed in the token hook.")
 
         request = self.request
         response = request['RESPONSE']
         response.setCookie('__ac', '', path='/')
+
+        # Drop the "Login failed" message that appears because we consumed
+        # the credentials in our authenticator plugin.
+        drop_login_failed_msg(request)
 
         # Updating the description
         token_field = self.fields.get('token')

@@ -4,6 +4,9 @@ Changelog
 ------------------------------------------------
 (unreleased)
 
+- Avoid prematurely logging user in (before token has been verified)
+  [lgraf]
+
 - Make sure to handle exceptions in auth plugins properly.
   [lgraf]
 

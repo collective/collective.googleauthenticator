@@ -124,6 +124,13 @@ class GoogleAuthenticatorPlugin(BasePlugin):
                 # No auth plugin was able to authenticate the user
                 return None
 
+            # Consume the credentials after we verified the credentials above.
+            # We need to do this to prevent later IAuthenticationPlugins
+            # from authenticating the user before we verified the token.
+            # This does produce a "Login failed" status message though that
+            # we need to remove in the token validation view
+            for key in credentials.keys():
+                del credentials[key]
 
             # Setting the data in the session doesn't seem to work. That's why
             # we use the `ska` package.

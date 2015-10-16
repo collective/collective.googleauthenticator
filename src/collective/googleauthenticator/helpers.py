@@ -9,7 +9,10 @@ import logging
 
 from zope.component import getUtility
 from zope.globalrequest import getRequest
+from zope.i18n import translate
 from zope.i18nmessageid import MessageFactory
+
+from Products.statusmessages.interfaces import IStatusMessage
 
 from onetimepass import valid_totp
 
@@ -514,3 +517,29 @@ def is_whitelisted_client(request=None):
         return True
 
     return False
+
+
+def drop_login_failed_msg(request):
+    """
+    Drop an eventual "Login failed..." status message from the request,
+    but keep all other messages by re-adding them.
+
+    Because what ends up in the request is the message translated in the
+    user's language, we have to first translate the "Login failed" message
+    using the same request(i.e. language), and then filter out the status
+    message based on that.
+
+    :param ZPublisher.HTTPRequest request:
+    """
+    login_failed = ("Login failed. Both login name and password are case "
+                    "sensitive, check that caps lock is not enabled.")
+    login_failed_translated = translate(
+        login_failed, domain='plone', context=request)
+    status_messages = IStatusMessage(request)
+
+    msgs = status_messages.show()
+    for msg in msgs:
+        if msg.message == login_failed_translated:
+            # Drop the "Login failed" message
+            continue
+        status_messages.add(msg.message, msg.type)
