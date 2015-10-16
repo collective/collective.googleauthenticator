@@ -1,11 +1,10 @@
 """
-The helper module contains various methods for api security and for downloading files
+This helper module contains functions used throughout c.googleauthenticator.
 """
 from hashlib import sha1
-from uuid import uuid4
 from urllib import urlencode, unquote, quote
 from urlparse import urlparse
-from urlparse import urlparse
+from uuid import uuid4
 import logging
 
 from zope.component import getUtility
@@ -14,8 +13,8 @@ from zope.i18nmessageid import MessageFactory
 
 from onetimepass import valid_totp
 
-from plone.registry.interfaces import IRegistry
 from plone import api
+from plone.registry.interfaces import IRegistry
 
 from ska import sign_url, validate_signed_request_data
 import rebus
@@ -28,6 +27,7 @@ logger = logging.getLogger("collective.googleauthenticator")
 
 # ******************************************
 
+
 def get_app_settings():
     """
     Gets the Google Authenticator settings.
@@ -36,23 +36,28 @@ def get_app_settings():
     settings = registry.forInterface(IGoogleAuthenticatorSettings)
     return settings
 
+
 def get_user(username):
     """
     Get user by username given and return member object.
     """
     return api.user.get(username=username)
 
+
 def get_username(user=None):
     """
     Gets the username of the user.
 
-    :param user: If given, used to extract the user. Otherwise, ``plone.api.user.get_current`` is used.
+    :param user: If given, used to extract the user. Otherwise,
+    ``plone.api.user.get_current`` is used.
+
     :return string:
     """
     if user is None:
         user = api.user.get_current()
     if user:
         return user.getUserName()
+
 
 def get_base_url(request=None):
     """
@@ -67,6 +72,7 @@ def get_base_url(request=None):
     parsed_uri = urlparse(request.base)
     return "{0}://{1}/".format(parsed_uri.scheme, parsed_uri.netloc)
 
+
 def get_domain_name(request=None):
     """
     Gets domain name (without HTTP).
@@ -80,6 +86,7 @@ def get_domain_name(request=None):
     parsed_uri = urlparse(request.base)
     return parsed_uri.netloc
 
+
 def generate_secret(user):
     """
     Generates secret for the user.
@@ -87,9 +94,11 @@ def generate_secret(user):
     :param Products.PlonePAS.tools.memberdata user:
     """
     secret = rebus.b32encode(str(uuid4()))
-    #logger.debug(secret)
-    user.setMemberProperties(mapping={'two_factor_authentication_secret': secret,})
+    # logger.debug(secret)
+    user.setMemberProperties(
+        mapping={'two_factor_authentication_secret': secret})
     return secret
+
 
 def get_barcode_image(username, domain, secret):
     """
@@ -104,10 +113,11 @@ def get_barcode_image(username, domain, secret):
         'chs': '200x200',
         'chld': 'M|0',
         'cht': 'qr',
-        'chl': "otpauth://totp/{0}@{1}?secret={2}".format(username, domain, secret)
-        })
+        'chl': "otpauth://totp/{0}@{1}?secret={2}".format(
+            username, domain, secret)})
     url = "https://chart.googleapis.com/chart?{0}".format(params)
     return url
+
 
 def get_secret(user=None, hashed=False):
     """
@@ -117,7 +127,7 @@ def get_secret(user=None, hashed=False):
     :param bool hashed: If set to True, hashed version is returned.
     :return string:
     """
-    #TODO: Return hashed version if ``hashed`` is set to True.
+    # TODO: Return hashed version if ``hashed`` is set to True.
     if user is None:
         user = api.user.get_current()
     if user:
@@ -127,16 +137,19 @@ def get_secret(user=None, hashed=False):
         if isinstance(secret, basestring) and secret:
             return secret
 
+
 def get_or_create_secret(user, overwrite=False):
     """
-    Gets or creates token secret for the user given. Checks first if user given has a ``secret`` generated.
-    If not, generate it for him and save it in his profile (``two_factor_authentication_secret``).
+    Gets or creates token secret for the user given. Checks first if user
+    given has a ``secret`` generated.
+    If not, generate it for him and save it in his profile
+    (``two_factor_authentication_secret``).
 
-    :param Products.PlonePAS.tools.memberdata user: If provided, used. Otherwise ``plone.api.user.get_current``
-        is used to obtain the user.
+    :param Products.PlonePAS.tools.memberdata user: If provided, used.
+        Otherwise ``plone.api.user.get_current`` is used to obtain the user.
     :return string:
     """
-    #TODO: Return hashed version if ``hashed`` is set to True.
+    # TODO: Return hashed version if ``hashed`` is set to True.
     if user is None:
         user = api.user.get_current()
 
@@ -148,6 +161,7 @@ def get_or_create_secret(user, overwrite=False):
         return secret
     else:
         return generate_secret(user)
+
 
 def get_token_description(user=None, overwrite_secret=False):
     """
@@ -161,15 +175,14 @@ def get_token_description(user=None, overwrite_secret=False):
     if user is None:
         user = api.user.get_current()
 
-    return """
-        <div><img src="{url}" alt="QR Code" /></div>
-    """.format(
-        url = get_barcode_image(
+    return '<div><img src="{url}" alt="QR Code" /></div>'.format(
+        url=get_barcode_image(
             get_username(user),
             get_domain_name(request),
             get_or_create_secret(user, overwrite=overwrite_secret)
-            ),
-        )
+        ),
+    )
+
 
 def validate_token(token, user=None):
     """
@@ -183,15 +196,17 @@ def validate_token(token, user=None):
 
     secret = get_secret(user)
 
-    #logger.debug('secret: {0}'.format(secret))
+    # logger.debug('secret: {0}'.format(secret))
 
     validation_result = valid_totp(token=token, secret=secret)
 
     return validation_result
 
+
 def get_browser_hash(request=None):
     """
-    Gets browser hash. Adds an extra security layer, since browser version is unlikely to be changed.
+    Gets browser hash. Adds an extra security layer, since browser version is
+    unlikely to be changed.
 
     :param ZPublisher.HTTPRequest request:
     :return string:
@@ -205,6 +220,7 @@ def get_browser_hash(request=None):
         logger.debug(str(e))
         return ''
 
+
 def get_ska_secret_key(request=None, user=None, use_browser_hash=True):
     """
     Gets the `secret_key` to be used in `ska` package.
@@ -215,7 +231,8 @@ def get_ska_secret_key(request=None, user=None, use_browser_hash=True):
 
     :param ZPublisher.HTTPRequest request:
     :param Products.PlonePAS.tools.memberdata user:
-    :param bool use_browser_hash: If set to True, browser hash is used. Otherwise - not. Defaults to True.
+    :param bool use_browser_hash: If set to True, browser hash is used.
+        Otherwise - not. Defaults to True.
     :return string:
     """
     if request is None:
@@ -237,6 +254,7 @@ def get_ska_secret_key(request=None, user=None, use_browser_hash=True):
 
     return "{0}{1}{2}".format(user_secret, browser_hash, ska_secret_key)
 
+
 def is_two_factor_authentication_globally_enabled():
     """
     Checks if the two factor authentication is globally enabled.
@@ -245,6 +263,7 @@ def is_two_factor_authentication_globally_enabled():
     """
     settings = get_app_settings()
     return settings.globally_enabled
+
 
 def get_white_listed_ip_addresses():
     """
@@ -257,10 +276,11 @@ def get_white_listed_ip_addresses():
     ip_addresses_list = ip_addresses.split('\n')
     return ip_addresses_list
 
+
 def sign_user_data(request=None, user=None, url='@@google-authenticator-token'):
     """
-    Signs the user data with `ska` package. The secret key is `secret_key` to be used with `ska` is a
-    combination of:
+    Signs the user data with `ska` package. The secret key is `secret_key` to
+    be used with `ska` is a combination of:
 
     - Value of the ``two_factor_authentication_secret`` (from users' profile).
     - Browser info (hash of)
@@ -282,21 +302,22 @@ def sign_user_data(request=None, user=None, url='@@google-authenticator-token'):
 
     secret_key = get_ska_secret_key(request=request, user=user)
     signed_url = sign_url(
-        auth_user = user.getUserId(),
-        secret_key = secret_key,
-        url = url
+        auth_user=user.getUserId(),
+        secret_key=secret_key,
+        url=url
     )
     return signed_url
 
+
 def extract_request_data_from_query_string(request_qs):
     """
-    Plone seems to strip/escape some special chars (such as '+') from values and those chars are
-    quite important for us. This method extracts the vars from request QUERY_STRING given and
-    returns them unescaped.
+    Plone seems to strip/escape some special chars (such as '+') from values
+    and those chars are quite important for us. This method extracts the vars
+    from request QUERY_STRING given and returns them unescaped.
 
-    :FIXME: As stated above, for some reason Plone escapes from special chars from the values. If
-    you know what the reason is and if it has some effects on security, please make the changes
-    necessary.
+    :FIXME: As stated above, for some reason Plone escapes from special chars
+    from the values. If you know what the reason is and if it has some effects
+    on security, please make the changes necessary.
 
     :param string request_qs:
     :return dict:
@@ -310,20 +331,21 @@ def extract_request_data_from_query_string(request_qs):
         try:
             key, value = part.split('=', 1)
             request_data.update({key: unquote(value)})
-        except ValueError as e:
+        except ValueError:
             pass
 
     return request_data
 
+
 def extract_request_data(request):
     """
-    Plone seems to strip/escape some special chars (such as '+') from values and those chars are
-    quite important for us. This method extracts the vars from request QUERY_STRING given and
-    returns them unescaped.
+    Plone seems to strip/escape some special chars (such as '+') from values
+    and those chars are quite important for us. This method extracts the vars
+    from request QUERY_STRING given and returns them unescaped.
 
-    :FIXME: As stated above, for some reason Plone escapes from special chars from the values. If
-    you know what the reason is and if it has some effects on security, please make the changes
-    necessary.
+    :FIXME: As stated above, for some reason Plone escapes from special chars
+    from the values. If you know what the reason is and if it has some effects
+    on security, please make the changes necessary.
 
     :param request ZPublisher.HTTPRequest:
     :return dict:
@@ -331,12 +353,16 @@ def extract_request_data(request):
     request_qs = request.get('QUERY_STRING')
     return extract_request_data_from_query_string(request_qs)
 
+
 def extract_next_url_from_referer(request, quote_url=False):
     """
-    Since we override the default Plone functionality (take out the `came_from` from the login form for a
-    very strong reason), we want to make sure that for users, the "came from" functionality stays intact.
-    That why, we check the referer for the `came_from` attributes and if present, redirect to that after
-    successful two-factor authentication token validation.
+    Since we override the default Plone functionality (take out the `came_from`
+    from the login form for a very strong reason), we want to make sure that
+    for users, the "came from" functionality stays intact.
+    That why, we check the referer for the `came_from` attributes and if
+    present, redirect to that after successful two-factor authentication token
+    validation.
+
     :param request ZPublisher.HTTPRequest:
     :return string: Extracted `came_from` URL.
     """
@@ -350,6 +376,7 @@ def extract_next_url_from_referer(request, quote_url=False):
 
     return url
 
+
 def validate_user_data(request, user, use_browser_hash=True):
     """
     Validates the user data.
@@ -358,12 +385,14 @@ def validate_user_data(request, user, use_browser_hash=True):
     :param Products.PlonePAS.tools.memberdata user:
     :return ska.SignatureValidationResult:
     """
-    secret_key = get_ska_secret_key(request=request, user=user, use_browser_hash=use_browser_hash)
+    secret_key = get_ska_secret_key(
+        request=request, user=user, use_browser_hash=use_browser_hash)
     validation_result = validate_signed_request_data(
-        data = extract_request_data(request),
-        secret_key = secret_key
-        )
+        data=extract_request_data(request),
+        secret_key=secret_key
+    )
     return validation_result
+
 
 def has_enabled_two_factor_authentication(user):
     """
@@ -377,8 +406,9 @@ def has_enabled_two_factor_authentication(user):
 
     try:
         return user.getProperty('enable_two_factor_authentication', False)
-    except Exception as e:
+    except Exception:
         return None
+
 
 def enable_two_factor_authentication_for_users(users=[]):
     """
@@ -391,9 +421,11 @@ def enable_two_factor_authentication_for_users(users=[]):
         try:
             get_or_create_secret(user)
             if not has_enabled_two_factor_authentication(user):
-                user.setMemberProperties(mapping={'enable_two_factor_authentication': True,})
+                user.setMemberProperties(
+                    mapping={'enable_two_factor_authentication': True})
         except Exception as e:
             logger.debug(str(e))
+
 
 def disable_two_factor_authentication_for_users(users=[]):
     """
@@ -404,16 +436,18 @@ def disable_two_factor_authentication_for_users(users=[]):
 
     for user in users:
         try:
-            #get_or_create_secret(user)
+            # get_or_create_secret(user)
             if has_enabled_two_factor_authentication(user):
-                user.setMemberProperties(mapping={'enable_two_factor_authentication': False,})
+                user.setMemberProperties(
+                    mapping={'enable_two_factor_authentication': False})
         except Exception as e:
             logger.debug(str(e))
 
+
 def extract_ip_address_from_request(request=None):
     """
-    Extracts client's IP address from request. This is not the safest solution, since client
-    may change headers.
+    Extracts client's IP address from request. This is not the safest solution,
+    since client may change headers.
 
     :param ZPublisher.HTTPRequest request:
     :return string:
@@ -438,6 +472,7 @@ def extract_ip_address_from_request(request=None):
 
     return ip
 
+
 def get_ip_addresses_whitelist(request=None):
     """
     Gets IP addresses white list.
@@ -455,12 +490,14 @@ def get_ip_addresses_whitelist(request=None):
     if ip_addresses_whitelist:
         try:
             ip_addresses_whitelist = ip_addresses_whitelist.split('\n')
-            ip_addresses_whitelist = [ip_address.strip() for ip_address in ip_addresses_whitelist]
+            ip_addresses_whitelist = [ip_address.strip() for ip_address
+                                      in ip_addresses_whitelist]
         except Exception as e:
             logger.debug(str(e))
             ip_addresses_whitelist = []
 
     return ip_addresses_whitelist or []
+
 
 def is_whitelisted_client(request=None):
     """
