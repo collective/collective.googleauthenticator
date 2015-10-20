@@ -4,6 +4,10 @@ Changelog
 ------------------------------------------------
 (unreleased)
 
+- Disable unloadProtection for controlpanel form.
+  (Gets rid of "Leave this page?" message when editing settings)
+  [lgraf]
+
 - Avoid prematurely logging user in (before token has been verified)
   [lgraf]
 
