@@ -4,6 +4,11 @@ Changelog
 ------------------------------------------------
 (unreleased)
 
+- Use the default "You're now logged in" message and translate it
+  in the 'plone' domain. That way, it will look the same as with
+  the regular Plone login and be translated in all languages.
+  [lgraf]
+
 - Disable unloadProtection for controlpanel form.
   (Gets rid of "Leave this page?" message when editing settings)
   [lgraf]
