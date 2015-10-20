@@ -63,6 +63,7 @@ class GoogleAuthenticatorSettingsEditForm(AutoExtensibleForm, form.EditForm):
     schema = IGoogleAuthenticatorSettings
     label = _("Google Authenticator")
     description = _(u"""Google Authenticator configuration""")
+    enable_unload_protection = False
 
     def updateFields(self):
         super(GoogleAuthenticatorSettingsEditForm, self).updateFields()

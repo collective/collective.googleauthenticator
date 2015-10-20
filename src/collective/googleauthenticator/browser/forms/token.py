@@ -25,6 +25,7 @@ logger = logging.getLogger('collective.googleauthenticator')
 DEBUG = False
 
 _ = MessageFactory('collective.googleauthenticator')
+PMF = MessageFactory('plone')
 
 
 class ITokenForm(form.Schema):
@@ -104,7 +105,7 @@ class TokenForm(form.SchemaForm):
 
             # TODO: Is there a nicer way of resolving the
             # "@@google_authenticator_token_form" URL?
-            msg = _("Great! You're logged in.")
+            msg = PMF("Welcome! You are now logged in.")
             IStatusMessage(self.request).addStatusMessage(msg, 'info')
             request_data = extract_request_data(self.request)
             context_url = self.context.absolute_url()

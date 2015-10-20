@@ -1,0 +1,24 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="collective.googleauthenticator">
+
+    <genericsetup:upgradeStep
+        title="Move '[enable|disable]_two_factor_authentication' actions before 'logout' action"
+        description="Moves those actions up one place so the 'logout' action is still at the bottom"
+        source="1"
+        destination="0301"
+        handler="collective.googleauthenticator.upgrades.to0301.upgrade"
+        profile="collective.googleauthenticator:default"
+        />
+
+    <genericsetup:registerProfile
+        name="0301"
+        title="collective.googleauthenticator.upgrades.0301"
+        description=""
+        directory="profiles/0301"
+        for="Products.CMFPlone.interfaces.IMigratingPloneSiteRoot"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
+</configure>
