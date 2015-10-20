@@ -4,6 +4,10 @@ Changelog
 ------------------------------------------------
 (unreleased)
 
+- Move the [enable|disable]_two_factor_authentication actions before the
+  logout action, that 'logout' is still at the bottom of the menu.
+  [lgraf]
+
 - Use the default "You're now logged in" message and translate it
   in the 'plone' domain. That way, it will look the same as with
   the regular Plone login and be translated in all languages.
