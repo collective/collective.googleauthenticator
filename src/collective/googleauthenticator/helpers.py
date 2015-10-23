@@ -268,18 +268,6 @@ def is_two_factor_authentication_globally_enabled():
     return settings.globally_enabled
 
 
-def get_white_listed_ip_addresses():
-    """
-    Gets list of white-listed IP addresses.
-
-    :return list:
-    """
-    settings = get_app_settings()
-    ip_addresses = settings.ip_addresses_whitelist
-    ip_addresses_list = ip_addresses.split('\n')
-    return ip_addresses_list
-
-
 def sign_user_data(request=None, user=None, url='@@google-authenticator-token'):
     """
     Signs the user data with `ska` package. The secret key is `secret_key` to
