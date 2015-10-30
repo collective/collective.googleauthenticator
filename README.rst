@@ -153,11 +153,13 @@ If checked, two-step verification is globally force-enabled for all site users a
 longer have an option to disable it; this applies to all new users (just registered accounts)
 as well.
 
-White-listed IP addresses
+White-listed IP addresses or IP ranges
 ------------------------------------------------
-List of white-listed IP addresses - one at a line. If user comes from one of those,
+List of white-listed IP addresses or ranges - one per line. If user comes from one of those,
 the two-step verification is skipped even if user has enabled it or two-step verification
 is globally enabled.
+
+For specifying IP ranges the CIDR slash notation can be used, for example: ``192.168.0.0/16``.
 
 Extra
 ------------------------------------------------

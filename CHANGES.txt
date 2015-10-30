@@ -4,6 +4,10 @@ Changelog
 ------------------------------------------------
 (unreleased)
 
+- Add support for whitelisting IP ranges. Single IP addresses can still
+  be used and mixed and matched with ranges.
+  [lgraf]
+
 - Move the [enable|disable]_two_factor_authentication actions before the
   logout action, that 'logout' is still at the bottom of the menu.
   [lgraf]

@@ -20,6 +20,7 @@ from plone import api
 from plone.registry.interfaces import IRegistry
 
 from ska import sign_url, validate_signed_request_data
+import ipaddress
 import rebus
 
 from collective.googleauthenticator.browser.controlpanel import IGoogleAuthenticatorSettings
@@ -268,18 +269,6 @@ def is_two_factor_authentication_globally_enabled():
     return settings.globally_enabled
 
 
-def get_white_listed_ip_addresses():
-    """
-    Gets list of white-listed IP addresses.
-
-    :return list:
-    """
-    settings = get_app_settings()
-    ip_addresses = settings.ip_addresses_whitelist
-    ip_addresses_list = ip_addresses.split('\n')
-    return ip_addresses_list
-
-
 def sign_user_data(request=None, user=None, url='@@google-authenticator-token'):
     """
     Signs the user data with `ska` package. The secret key is `secret_key` to
@@ -473,7 +462,7 @@ def extract_ip_address_from_request(request=None):
         if len(proxies) > 0:
             ip = proxies[0]
 
-    return ip
+    return ipaddress.ip_address(ip)
 
 
 def get_ip_addresses_whitelist(request=None):
@@ -502,6 +491,17 @@ def get_ip_addresses_whitelist(request=None):
     return ip_addresses_whitelist or []
 
 
+def get_ip_ranges(list_of_networks):
+    """
+    Returns a list of IPv4Network or IPv6Network objects from a list of
+    single IP addresses ('127.0.0.1') or IP network specs ('127.0.0.0/8').
+
+    :param list list_of_networks:
+    :return list: A list of IPv4Network or IPv6Network objects.
+    """
+    return [ipaddress.ip_network(net) for net in list_of_networks]
+
+
 def is_whitelisted_client(request=None):
     """
     Checks if client's IP address is whitelisted.
@@ -510,13 +510,10 @@ def is_whitelisted_client(request=None):
     :return bool:
     """
     ip_addresses_whitelist = get_ip_addresses_whitelist(request=request)
+    whitelisted_ranges = get_ip_ranges(ip_addresses_whitelist)
 
     ip_address = extract_ip_address_from_request(request=request)
-
-    if ip_address in ip_addresses_whitelist:
-        return True
-
-    return False
+    return any(ip_address in ip_range for ip_range in whitelisted_ranges)
 
 
 def drop_login_failed_msg(request):
