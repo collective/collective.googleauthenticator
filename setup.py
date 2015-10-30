@@ -59,6 +59,7 @@ setup(
         'onetimepass==0.2.2',
         'ska>=1.1',
         'rebus>=0.1',
+        'py2-ipaddress>2.0.1',
     ],
     extras_require = {'test': ['plone.app.testing', 'plone.app.robotframework']},
     entry_points = """
