@@ -29,5 +29,9 @@ before_script:
 script:
 - bin/code-analysis
 - bin/test
+after_success:
+- bin/createcoverage --output-dir=htmlcov -t "--layer=!Robot"
+- pip install coveralls
+- coveralls
 notifications:
   irc: irc.freenode.org#plone-testing
