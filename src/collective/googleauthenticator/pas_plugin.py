@@ -86,8 +86,7 @@ class GoogleAuthenticatorPlugin(BasePlugin):
             return None
 
         user = api.user.get(username=login)
-
-        logger.debug("Found user: {0}".format(user.getProperty('username')))
+        logger.debug('Found user: {0}'.format(user))
 
         two_factor_authentication_enabled = user.getProperty(
             'enable_two_factor_authentication')
