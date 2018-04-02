@@ -36,8 +36,10 @@ class SettingsHelper(BrowserView):
         :return bool:
         """
         user = api.user.get_current()
-        return not is_two_factor_authentication_globally_enabled() \
-               and (has_enabled_two_factor_authentication(user) is False)
+        return (
+            is_two_factor_authentication_globally_enabled() and
+            not has_enabled_two_factor_authentication(user)
+        )
 
     def show_disable_two_factor_authentication_link(self):
         """
@@ -51,4 +53,7 @@ class SettingsHelper(BrowserView):
         :return bool:
         """
         user = api.user.get_current()
-        return not is_two_factor_authentication_globally_enabled() and has_enabled_two_factor_authentication(user)
+        return (
+            is_two_factor_authentication_globally_enabled() and
+            has_enabled_two_factor_authentication(user)
+        )
