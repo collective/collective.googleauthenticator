@@ -393,13 +393,7 @@ def has_enabled_two_factor_authentication(user):
     :param Products.PlonePAS.tools.memberdata user:
     :return bool:
     """
-    if bool(api.user.is_anonymous()) is True:
-        return None
-
-    try:
-        return user.getProperty('enable_two_factor_authentication', False)
-    except Exception:
-        return None
+    return user.getProperty('enable_two_factor_authentication', False)
 
 
 def enable_two_factor_authentication_for_users(users=[]):
