@@ -1,4 +1,5 @@
-from  collective.googleauthenticator.testing import COLLECTIVE_GOOGLEAUTHENTICATOR_ROBOT_TESTING
+# coding=utf-8
+from  collective.googleauthenticator.testing import COLLECTIVE_GOOGLEAUTHENTICATOR_ROBOT_TESTING  # noqa: E501
 from plone.testing import layered
 import robotsuite
 import unittest

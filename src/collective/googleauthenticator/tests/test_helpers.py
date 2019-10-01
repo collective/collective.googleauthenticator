@@ -1,12 +1,11 @@
-import unittest2 as unittest
-
-from collective.googleauthenticator.testing import \
-    COLLECTIVE_GOOGLEAUTHENTICATOR_INTEGRATION_TESTING
-from collective.googleauthenticator.tests.base import BaseTest
-
+# coding=utf-8
 from collective.googleauthenticator.helpers import get_ip_ranges
-from ipaddress import IPv4Network
+from collective.googleauthenticator.testing import COLLECTIVE_GOOGLEAUTHENTICATOR_INTEGRATION_TESTING  # noqa: E401
+from collective.googleauthenticator.tests.base import BaseTest
 from ipaddress import IPv4Address
+from ipaddress import IPv4Network
+
+import unittest
 
 
 class TestIPWhitelisting(unittest.TestCase, BaseTest):
