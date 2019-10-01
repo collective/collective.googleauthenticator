@@ -1,20 +1,23 @@
-import logging
-
-from zope.component import getUtility
-
-from zope.i18nmessageid import MessageFactory
-from zope.interface import Interface
-from zope.schema import TextLine, Bool, Text
-
-from plone.registry.interfaces import IRegistry
+# coding=utf-8
 from plone import api
 from plone.app.registry.browser import controlpanel
+from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
+from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.autoform.form import AutoExtensibleForm
 from plone.directives.form import fieldset
+from plone.registry.interfaces import IRegistry
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from z3c.form import button
+from z3c.form import form
+from zope.component import getUtility
+from zope.i18nmessageid import MessageFactory
+from zope.interface import Interface
+from zope.schema import Bool
+from zope.schema import Text
+from zope.schema import TextLine
 
-from z3c.form import form, button
+import logging
 
-from Products.statusmessages.interfaces import IStatusMessage
 
 logger = logging.getLogger("collective.googleauthenticator")
 
@@ -48,13 +51,8 @@ class IGoogleAuthenticatorSettings(Interface):
         default = u'',
         )
 
-    fieldset(
-        None,
-        label=None,
-        fields=['ska_secret_key', 'globally_enabled', 'ip_addresses_whitelist',]
-        )
 
-class GoogleAuthenticatorSettingsEditForm(AutoExtensibleForm, form.EditForm):
+class GoogleAuthenticatorSettingsEditForm(RegistryEditForm):
     """
     Control panel form.
     """
@@ -64,25 +62,11 @@ class GoogleAuthenticatorSettingsEditForm(AutoExtensibleForm, form.EditForm):
     label = _("Google Authenticator")
     description = _(u"""Google Authenticator configuration""")
     enable_unload_protection = False
-
-    def updateFields(self):
-        super(GoogleAuthenticatorSettingsEditForm, self).updateFields()
-
-    def updateWidgets(self):
-        super(GoogleAuthenticatorSettingsEditForm, self).updateWidgets()
-
-    def getContent(self):
-        return getUtility(IRegistry).forInterface(self.schema, prefix=self.schema_prefix)
-
-    def updateActions(self):
-        super(GoogleAuthenticatorSettingsEditForm, self).updateActions()
-        self.actions['save'].addClass("context")
-        self.actions['cancel'].addClass("standalone")
+    additional_template = ViewPageTemplateFile("templates/control_panel_extra.pt")
 
     def render(self, *args, **kwargs):
         res = super(GoogleAuthenticatorSettingsEditForm, self).render(*args, **kwargs)
-        additional_template = self.context.restrictedTraverse('control_panel_extra')
-        additional = additional_template(
+        additional = self.additional_template(
             enable_url = '{0}/{1}'.format(self.context.absolute_url(), '@@google-authenticator-enable-for-all-users'),
             enable_text = _("Enable two-step verification for all users"),
             disable_url = '{0}/{1}'.format(self.context.absolute_url(), '@@google-authenticator-disable-for-all-users'),
@@ -118,12 +102,12 @@ class GoogleAuthenticatorSettingsEditForm(AutoExtensibleForm, form.EditForm):
             logger.debug('Disabled')
 
         changes = self.applyChanges(data)
-        IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), "info")
+        api.portal.show_message(_(u"Changes saved."), self.request, "info")
         self.request.response.redirect("%s/%s" % (self.context.absolute_url(), self.control_panel_view))
 
     @button.buttonAndHandler(_(u"Cancel"), name='cancel')
     def handleCancel(self, action):
-        IStatusMessage(self.request).addStatusMessage(_(u"Edit cancelled."), "info")
+        api.portal.show_message(_(u"Edit cancelled."), self.request, "info")
         self.request.response.redirect("%s/%s" % (self.context.absolute_url(), self.control_panel_view))
 
 

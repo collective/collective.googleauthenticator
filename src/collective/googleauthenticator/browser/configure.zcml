@@ -5,7 +5,7 @@
     i18n_domain="collective.googleauthenticator">
 
     <i18n:registerTranslations directory="../locales" />
-    
+
     <browser:resourceDirectory
         name="collective.googleauthenticator"
         directory="static"
@@ -103,14 +103,6 @@
         for="Products.CMFCore.interfaces.ISiteRoot"
         attribute="show_disable_two_factor_authentication_link"
         permission="zope2.View"
-        />
-
-    <browser:page
-        for="Products.CMFPlone.Portal.PloneSite"
-        name="personal-information"
-        class="collective.googleauthenticator.userdataschema.CustomizedUserDataPanel"
-        permission="cmf.SetOwnProperties"
-        layer="collective.googleauthenticator.interfaces.IGoogleAuthenticatorLayer"
         />
 
 </configure>

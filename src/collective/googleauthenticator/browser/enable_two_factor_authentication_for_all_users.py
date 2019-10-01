@@ -1,11 +1,10 @@
-from zope.i18nmessageid import MessageFactory
-
+# coding=utf-8
+from collective.googleauthenticator.helpers import enable_two_factor_authentication_for_users
 from plone import api
-
 from Products.Five import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
+from zope.i18nmessageid import MessageFactory
 
-from collective.googleauthenticator.helpers import enable_two_factor_authentication_for_users
 
 _ = MessageFactory('collective.googleauthenticator')
 
@@ -13,10 +12,6 @@ class EnableTwoFactorAuthenticationForAllUsers(BrowserView):
     """
     Enable the two-step verification for all users.
     """
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
-
     def index(self):
         """
         Enable the two-step verification for the user and redirect back to the `@@google-authenticator-settings`.

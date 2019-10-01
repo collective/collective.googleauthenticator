@@ -21,11 +21,6 @@
     <include package=".browser" />
     <include package=".upgrades" />
 
-    <utility
-        provides=".userdataschema.IEnhancedUserDataSchema"
-        factory=".userdataschema.UserDataSchemaProvider"
-        />
-
     <genericsetup:registerProfile
         name="default"
         title="Google Authenticator Plone"
@@ -55,8 +50,6 @@
         for="zope.publisher.interfaces.http.IHTTPRequest"
         provides=".adapter.ICameFrom"
         factory=".adapter.CameFromAdapter" />
-
-    <cmf:registerDirectory name="skins" directory="skins" recursive="True" />
 
     <!-- -*- Event fired on user creation -*- -->
     <subscriber

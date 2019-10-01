@@ -1,22 +1,18 @@
+# coding=utf-8
+from collective.googleauthenticator.helpers import has_enabled_two_factor_authentication
+from collective.googleauthenticator.helpers import is_two_factor_authentication_globally_enabled
+from plone import api
+from Products.Five import BrowserView
 from zope.i18nmessageid import MessageFactory
 
-from plone import api
-
-from Products.Five import BrowserView
-
-from collective.googleauthenticator.helpers import (
-    is_two_factor_authentication_globally_enabled, has_enabled_two_factor_authentication
-    )
 
 _ = MessageFactory('collective.googleauthenticator')
+
 
 class SettingsHelper(BrowserView):
     """
     Helper view for accessing some conditions from portal actions (actions.xml).
     """
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
 
     def is_two_factor_authentication_globally_enabled(self):
         """

@@ -97,12 +97,10 @@ class TokenForm(form.SchemaForm):
 
         # self.context.plone_log(valid_token)
         # self.context.plone_log(token)
-
         if valid_token:
             # We should login the user here
             self.context.acl_users.session._setupSession(
                 str(username), self.context.REQUEST.RESPONSE)
-
             # TODO: Is there a nicer way of resolving the
             # "@@google_authenticator_token_form" URL?
             msg = PMF("Welcome! You are now logged in.")
