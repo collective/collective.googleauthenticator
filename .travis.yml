@@ -7,20 +7,16 @@ cache:
 addons:
   firefox: 45.8.0esr
 env:
-- PLONE_VERSION=4.3
 - PLONE_VERSION=5.0
 - PLONE_VERSION=5.1
 matrix:
   allow_failures:
   - env: PLONE_VERSION=5.0
-  - env: PLONE_VERSION=5.1
   fast_finish: true
-before_install:
-# FIXME: I have no idea how and why six==1.11.0 i being installed
-- pip uninstall -y six
 install:
-- sed -ie "s#test-4.3.x.cfg#test-$PLONE_VERSION.x.cfg#" buildout.cfg
-- python bootstrap.py
+- sed -ie "s#test-5.1.x.cfg#test-$PLONE_VERSION.x.cfg#" buildout.cfg
+- virtualenv -p python2.7 .
+- bin/pip install -r requirements.txt
 - bin/buildout annotate
 - bin/buildout
 before_script:
