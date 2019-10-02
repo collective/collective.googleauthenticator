@@ -31,14 +31,17 @@ setup(
     description = "Two-step verification for Plone 4 using the Google Authenticator app.",
     long_description = long_description,
     # Get more strings from
-    # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    # https://pypi.org/classifiers/
     classifiers = [
         "Environment :: Web Environment",
+        "Framework :: Plone :: 5.1",
+        "Framework :: Plone :: Addon",
         "Framework :: Plone",
+        "Framework :: Zope :: 2",
+        "Framework :: Zope",
         "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords = 'google authenticator, two-step verification, multi-factor authentication, two-factor authentication',
