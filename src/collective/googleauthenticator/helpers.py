@@ -2,8 +2,7 @@
 This helper module contains functions used throughout c.googleauthenticator.
 """
 from hashlib import sha1
-from urllib import urlencode, unquote, quote
-from urlparse import urlparse
+from urllib.parse import urlencode, unquote, quote, urlparse
 from uuid import uuid4
 import logging
 
@@ -24,6 +23,7 @@ import ipaddress
 import rebus
 
 from collective.googleauthenticator.browser.controlpanel import IGoogleAuthenticatorSettings
+import six
 
 _ = MessageFactory('collective.googleauthenticator')
 
@@ -97,12 +97,11 @@ def generate_secret(user):
 
     :param Products.PlonePAS.tools.memberdata user:
     """
-    secret = rebus.b32encode(str(uuid4()))
+    secret = rebus.b32encode(str(uuid4())).decode('utf-8')
     # logger.debug(secret)
     user.setMemberProperties(
         mapping={'two_factor_authentication_secret': secret})
     return secret
-
 
 def get_barcode_image(username, domain, secret):
     """
@@ -138,7 +137,7 @@ def get_secret(user=None, hashed=False):
         secret = user.getProperty('two_factor_authentication_secret')
 
         # If string returned, then it's likely a set string
-        if isinstance(secret, basestring) and secret:
+        if isinstance(secret, six.string_types) and secret:
             return secret
 
 
@@ -161,7 +160,7 @@ def get_or_create_secret(user, overwrite=False):
         return generate_secret(user)
 
     secret = user.getProperty('two_factor_authentication_secret')
-    if isinstance(secret, basestring) and secret:
+    if isinstance(secret, six.string_types) and secret:
         return secret
     else:
         return generate_secret(user)

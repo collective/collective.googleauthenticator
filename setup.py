@@ -57,12 +57,12 @@ setup(
     install_requires = [
         'setuptools',
         # -*- Extra requirements: -*-
-        'plone.api>=1.1.0',
-        'plone.directives.form>=1.1',
-        'onetimepass==0.2.2',
-        'ska>=1.1',
-        'rebus>=0.1',
-        'py2-ipaddress>2.0.1',
+        'plone.api>=1.11.0',
+        'plone.directives.form>=2.0',
+        'onetimepass==01.0.1',
+        'ska>=1.10',
+        'rebus>=0.2',
+        'ipaddress>=1.0.23',
     ],
     extras_require = {'test': ['plone.app.testing', 'plone.app.robotframework']},
     entry_points = """

@@ -4,6 +4,7 @@ from zope.i18nmessageid import MessageFactory
 
 from collective.googleauthenticator.helpers import get_app_settings
 from collective.googleauthenticator.pas_plugin import GoogleAuthenticatorPlugin
+import six
 
 _ = MessageFactory('collective.googleauthenticator')
 
@@ -41,7 +42,7 @@ def _setup_secret_key(portal):
 
     settings = get_app_settings()
     if not settings.ska_secret_key:
-        settings.ska_secret_key = unicode(uuid4())
+        settings.ska_secret_key = six.text_type(uuid4())
 
 def setupVarious(context):
     """

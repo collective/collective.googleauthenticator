@@ -1,5 +1,5 @@
 from collective.googleauthenticator.helpers import extract_next_url_from_referer
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface import Interface
 
 import logging
@@ -13,7 +13,7 @@ class ICameFrom(Interface):
     Interface for getting the ``came_from`` URL.
     """
 
-
+@implementer(ICameFrom)
 class CameFromAdapter(object):
     """
     Came from handling.
@@ -47,7 +47,6 @@ class CameFromAdapter(object):
     >>>         referrer = "{0}/tac-form/?came_from={1}".format(portal.portal_url(), real_referrer)
     >>>         return referrer
     """
-    implements(ICameFrom)
 
     def __init__(self, request):
         """

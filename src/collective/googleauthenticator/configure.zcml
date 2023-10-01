@@ -12,11 +12,12 @@
 
     <include package="Products.CMFCore" zcml:condition="have plone-41" file="permissions.zcml" />
     <include package="plone.app.registry" />
-    <include package="plone.app.controlpanel" />
+    <include package="plone.autoinclude" file="meta.zcml" />
+   <!-- <include package="plone.app.controlpanel" />-->
 
     <five:registerPackage package="." initialize=".initialize" />
 
-    <includeDependencies package="." />
+    <!--<includeDependencies package="." />-->
 
     <include package=".browser" />
     <include package=".upgrades" />

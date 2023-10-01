@@ -12,7 +12,10 @@ that Plone continues logging in the user normal way.
 """
 import logging
 
-from Globals import InitializeClass
+try:
+    from AccessControl.class_init import InitializeClass
+except ImportError:
+    from Globals import InitializeClass
 from AccessControl.SecurityInfo import ClassSecurityInfo
 
 from plone import api
@@ -151,8 +154,7 @@ class GoogleAuthenticatorPlugin(BasePlugin):
             if came_from:
                 signed_url = '{0}&next_url={1}'.format(signed_url, came_from)
 
-            response.redirect(signed_url, lock=1)
-
+            response.redirect(signed_url, lock=True)
             return None
 
         if credentials.get('extractor') != self.getId():
