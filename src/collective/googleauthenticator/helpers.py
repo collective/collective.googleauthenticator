@@ -2,20 +2,25 @@
 This helper module contains functions used throughout c.googleauthenticator.
 """
 from hashlib import sha1
-from urllib.parse import urlencode, unquote, quote, urlparse
+from urllib.parse import unquote, quote, urlparse
 from uuid import uuid4
+import base64
 import logging
+import qrcode
+import qrcode.image.svg
 
 from zope.component import getUtility
 from zope.globalrequest import getRequest
 from zope.i18n import translate
 from zope.i18nmessageid import MessageFactory
+from zope.interface import alsoProvides
 
 from Products.statusmessages.interfaces import IStatusMessage
 
 from onetimepass import valid_totp
 
 from plone import api
+from plone.protect.interfaces import IDisableCSRFProtection
 from plone.registry.interfaces import IRegistry
 
 from ska import sign_url, validate_signed_request_data
@@ -103,23 +108,18 @@ def generate_secret(user):
         mapping={'two_factor_authentication_secret': secret})
     return secret
 
-def get_barcode_image(username, domain, secret):
+def get_barcode_svg(username, domain, secret):
     """
-    Get barcode image URL.
+    Get barcode image as SVG.
 
     :param string username:
     :param string domain:
     :param string secret:
     :return string:
     """
-    params = urlencode({
-        'chs': '200x200',
-        'chld': 'M|0',
-        'cht': 'qr',
-        'chl': "otpauth://totp/{0}@{1}?secret={2}".format(
-            username, domain, secret)})
-    url = "https://chart.googleapis.com/chart?{0}".format(params)
-    return url
+    target_url = f"otpauth://totp/{username}@{domain}?secret={secret}"
+    img = qrcode.make(target_url, image_factory=qrcode.image.svg.SvgImage)
+    return img.to_string(encoding="unicode")
 
 
 def get_secret(user=None, hashed=False):
@@ -166,7 +166,7 @@ def get_or_create_secret(user, overwrite=False):
         return generate_secret(user)
 
 
-def get_token_description(user=None, overwrite_secret=False):
+def get_qr_code(user=None, overwrite_secret=False):
     """
     Gets description with bar code image.
 
@@ -178,13 +178,13 @@ def get_token_description(user=None, overwrite_secret=False):
     if user is None:
         user = api.user.get_current()
 
-    return '<div><img src="{url}" alt="QR Code" /></div>'.format(
-        url=get_barcode_image(
-            get_username(user),
-            get_domain_name(request),
-            get_or_create_secret(user, overwrite=overwrite_secret)
-        ),
+    barcode_svg = get_barcode_svg(
+        get_username(user),
+        get_domain_name(request),
+        get_or_create_secret(user, overwrite=overwrite_secret)
     )
+    svg_as_b64 = base64.b64encode(barcode_svg.encode()).decode()
+    return f'<div><img src="data:image/svg+xml;base64,{svg_as_b64}" /></div>'
 
 
 def validate_token(token, user=None):
@@ -533,3 +533,8 @@ def drop_login_failed_msg(request):
             # Drop the "Login failed" message
             continue
         status_messages.add(msg.message, msg.type)
+
+
+def disable_csrf_check():
+    request = getRequest()
+    alsoProvides(request, IDisableCSRFProtection)

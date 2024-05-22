@@ -15,7 +15,8 @@ from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form.form import Form
 from zope.schema import TextLine
 
-from collective.googleauthenticator.helpers import get_token_description, validate_token, validate_user_data
+from collective.googleauthenticator.helpers import get_qr_code, validate_token, validate_user_data
+from collective.googleauthenticator.helpers import disable_csrf_check
 
 logger = logging.getLogger('collective.googleauthenticator')
 
@@ -27,12 +28,6 @@ class IResetBarCodeForm(model.Schema):
     Interface for the Google Authenticator Reset Bar Code form.
     """
 
-    # The qr_code field isn't used as a input field, instead it is used to show the QR code
-    qr_code = TextLine(
-        title=_(u'1. Scan this QR code with the Google Authenticator app'),
-        description=u'This description is replaced with the QR code.',
-        required=False
-    )
     token = TextLine(
         title=_(u'2. Enter the verification code to activate two-step verification '),
         description=_(u'The Google Authenticator app generates a verification code, '
@@ -134,9 +129,7 @@ class ResetBarCodeForm(AutoExtensibleForm, Form):
         - Token (`signature` param) is matched to the one obtained from user records. If matched, the
           bar-code image is reset (security token is reset and saved in the users' profile).
         """
-        # Adding a proper description (with bar code image)
-        barcode_field = self.fields.get('qr_code')
-
+        disable_csrf_check()
         username = self.request.get('auth_user', '')
         token = self.request.get('signature', '')
         user = api.user.get(username=username)
@@ -150,19 +143,21 @@ class ResetBarCodeForm(AutoExtensibleForm, Form):
             user_data_validation_result = validate_user_data(request=self.request, user=user)
 
             # If all goes well, regenerate the token (overwrite_secret=True) and show the bar code image.
-            if barcode_field:
-                if user_data_validation_result.result and bar_code_reset_token == token:
-                    barcode_field.field.description = _(get_token_description(user=user, overwrite_secret=False))
+            if user_data_validation_result.result and bar_code_reset_token == token:
+                self.description += (
+                    "<label>1. Scan this QR code with the Google Authenticator app</label>" +
+                    get_qr_code(user=user, overwrite_secret=False)
+                )
+            else:
+                if not user_data_validation_result.result:
+                    IStatusMessage(self.request).addStatusMessage(
+                        ' '.join(user_data_validation_result.reason),
+                        'error'
+                        )
                 else:
-                    if not user_data_validation_result.result:
-                        IStatusMessage(self.request).addStatusMessage(
-                            ' '.join(user_data_validation_result.reason),
-                            'error'
-                            )
-                    else:
-                        IStatusMessage(self.request).addStatusMessage(
-                            _("Invalid bar-code reset token"),
-                            'error'
-                            )
+                    IStatusMessage(self.request).addStatusMessage(
+                        _("Invalid bar-code reset token"),
+                        'error'
+                        )
 
         return super(ResetBarCodeForm, self).updateFields(*args, **kwargs)

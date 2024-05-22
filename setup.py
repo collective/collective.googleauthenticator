@@ -60,6 +60,7 @@ setup(
         'plone.api>=1.11.0',
         'onetimepass==01.0.1',
         'ska>=1.10',
+        'qrcode',
         'rebus>=0.2',
         'ipaddress>=1.0.23',
     ],

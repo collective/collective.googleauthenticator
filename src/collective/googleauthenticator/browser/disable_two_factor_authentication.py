@@ -5,6 +5,8 @@ from plone import api
 from Products.Five import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
 
+from collective.googleauthenticator.helpers import disable_csrf_check
+
 _ = MessageFactory('collective.googleauthenticator')
 
 class DisableTwoFactorAuthentication(BrowserView):
@@ -22,6 +24,7 @@ class DisableTwoFactorAuthentication(BrowserView):
         if bool(api.user.is_anonymous()) is True:
             self.request.response.setStatus(401, _('Forbidden for anonymous'), True)
             return None
+        disable_csrf_check()
 
         user = api.user.get_current()
         user.setMemberProperties(

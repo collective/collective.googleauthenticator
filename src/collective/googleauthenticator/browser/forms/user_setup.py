@@ -18,7 +18,8 @@ from z3c.form.form import Form
 from zope.interface import alsoProvides
 from zope.schema import TextLine
 
-from collective.googleauthenticator.helpers import get_token_description, validate_token
+from collective.googleauthenticator.helpers import get_qr_code, validate_token
+from collective.googleauthenticator.helpers import disable_csrf_check
 
 logger = logging.getLogger('collective.googleauthenticator')
 
@@ -30,12 +31,6 @@ class ISetupForm(model.Schema):
     Interface for the Google Authenticator setup form.
     """
 
-    # The qr_code field isn't used as a input field, instead it is used to show the QR code
-    qr_code = TextLine(
-        title=_(u'1. Scan this QR code with the Google Authenticator app'),
-        description=u'This description is replaced with the QR code.',
-        required=False
-    )
     token = TextLine(
         title=_(u'2. Enter the verification code to activate two-step verification '),
         description=_(u'The Google Authenticator app generates a verification code, '
@@ -97,11 +92,13 @@ class SetupForm(AutoExtensibleForm, Form):
         """
         Bar code image is applied here.
         """
+        disable_csrf_check()
         if bool(api.user.is_anonymous()) is False:
 
             # Adding a proper description (with bar code image)
-            barcode_field = self.fields.get('qr_code')
-            if barcode_field:
-                barcode_field.field.description = _(get_token_description())
+            self.description += (
+                "<label>1. Scan this QR code with the Google Authenticator app</label>" +
+                get_qr_code()
+            )
 
             return super(SetupForm, self).updateFields(*args, **kwargs)
