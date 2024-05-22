@@ -7,11 +7,12 @@ from zope.i18nmessageid import MessageFactory
 
 from z3c.form import button, field
 
-from plone.directives import form
+from plone.autoform.form import AutoExtensibleForm
+from plone.supermodel import model
 from plone import api
-from plone.z3cform.layout import wrap_form
 
 from Products.statusmessages.interfaces import IStatusMessage
+from z3c.form.form import Form
 from zope.schema import TextLine
 
 from collective.googleauthenticator.helpers import get_token_description, validate_token, validate_user_data
@@ -21,7 +22,7 @@ logger = logging.getLogger('collective.googleauthenticator')
 _ = MessageFactory('collective.googleauthenticator')
 
 
-class IResetBarCodeForm(form.Schema):
+class IResetBarCodeForm(model.Schema):
     """
     Interface for the Google Authenticator Reset Bar Code form.
     """
@@ -40,7 +41,7 @@ class IResetBarCodeForm(form.Schema):
     )
 
 
-class ResetBarCodeForm(form.SchemaForm):
+class ResetBarCodeForm(AutoExtensibleForm, Form):
     """
     Form for the Google Authenticator Reset Bar Code.
 
@@ -165,7 +166,3 @@ class ResetBarCodeForm(form.SchemaForm):
                             )
 
         return super(ResetBarCodeForm, self).updateFields(*args, **kwargs)
-
-
-# View for the ``ResetBarCodeForm``.
-ResetBarCodeFormView = wrap_form(ResetBarCodeForm)

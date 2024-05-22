@@ -1,15 +1,9 @@
 # coding=utf-8
 from plone import api
 from plone.app.registry.browser import controlpanel
-from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
-from plone.autoform.form import AutoExtensibleForm
-from plone.directives.form import fieldset
-from plone.registry.interfaces import IRegistry
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from z3c.form import button
-from z3c.form import form
-from zope.component import getUtility
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import Bool

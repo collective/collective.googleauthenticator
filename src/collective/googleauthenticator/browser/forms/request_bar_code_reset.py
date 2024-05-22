@@ -3,8 +3,8 @@ Request the bar code reset.
 """
 from collective.googleauthenticator.helpers import get_ska_secret_key
 from plone import api
-from plone.directives import form
-from plone.z3cform.layout import wrap_form
+from plone.autoform.form import AutoExtensibleForm
+from plone.supermodel import model
 from Products.CMFCore.utils import getToolByName
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
@@ -13,6 +13,7 @@ from ska import Signature
 from smtplib import SMTPRecipientsRefused
 from z3c.form import button
 from z3c.form import field
+from z3c.form.form import Form
 from zope.i18nmessageid import MessageFactory
 from zope.schema import TextLine
 
@@ -24,7 +25,7 @@ logger = logging.getLogger('collective.googleauthenticator')
 _ = MessageFactory('collective.googleauthenticator')
 
 
-class IRequestBarCodeResetForm(form.Schema):
+class IRequestBarCodeResetForm(model.Schema):
     """
     Interface for the request to reset the Google Authenticator bar code form.
     """
@@ -36,7 +37,7 @@ class IRequestBarCodeResetForm(form.Schema):
     )
 
 
-class RequestBarCodeResetForm(form.SchemaForm):
+class RequestBarCodeResetForm(AutoExtensibleForm, Form):
     """
     Form for request to reset to the Google Authenticator bar code form.
     """
@@ -123,7 +124,3 @@ class RequestBarCodeResetForm(form.SchemaForm):
         """
         """
         return super(RequestBarCodeResetForm, self).updateFields(*args, **kwargs)
-
-
-# View for the ``RequestBarCodeResetForm``.
-RequestBarCodeResetFormView = wrap_form(RequestBarCodeResetForm)

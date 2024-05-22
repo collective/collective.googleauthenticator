@@ -8,11 +8,14 @@ from zope.i18nmessageid import MessageFactory
 
 from z3c.form import button, field
 
-from plone.directives import form
+from plone.autoform.form import AutoExtensibleForm
+from plone.supermodel import model
 from plone import api
-from plone.z3cform.layout import wrap_form
+from plone.protect.interfaces import IDisableCSRFProtection
 
 from Products.statusmessages.interfaces import IStatusMessage
+from z3c.form.form import Form
+from zope.interface import alsoProvides
 from zope.schema import TextLine
 
 from collective.googleauthenticator.helpers import get_token_description, validate_token
@@ -22,7 +25,7 @@ logger = logging.getLogger('collective.googleauthenticator')
 _ = MessageFactory('collective.googleauthenticator')
 
 
-class ISetupForm(form.Schema):
+class ISetupForm(model.Schema):
     """
     Interface for the Google Authenticator setup form.
     """
@@ -41,7 +44,7 @@ class ISetupForm(form.Schema):
     )
 
 
-class SetupForm(form.SchemaForm):
+class SetupForm(AutoExtensibleForm, Form):
     """
     Form for the Google Authenticator setup.
     """
@@ -67,9 +70,6 @@ class SetupForm(form.SchemaForm):
 
         valid_token = validate_token(token)
 
-        #self.context.plone_log(valid_token)
-        #self.context.plone_log(token)
-
         reason = None
         if valid_token:
             try:
@@ -91,8 +91,6 @@ class SetupForm(form.SchemaForm):
             IStatusMessage(self.request).addStatusMessage(_("Setup failed! {0}".format(reason)), 'error')
             redirect_url = "{0}/@@setup-two-factor-authentication".format(self.context.absolute_url())
 
-        # TODO: Is there a nicer way of resolving the "@@setup-two-factor-authentication" URL?
-
         self.request.response.redirect(redirect_url)
 
     def updateFields(self, *args, **kwargs):
@@ -107,6 +105,3 @@ class SetupForm(form.SchemaForm):
                 barcode_field.field.description = _(get_token_description())
 
             return super(SetupForm, self).updateFields(*args, **kwargs)
-
-# View for the ``SetupForm``.
-SetupFormView = wrap_form(SetupForm)

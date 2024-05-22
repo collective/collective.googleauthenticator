@@ -10,8 +10,9 @@ from zope.schema import TextLine
 from z3c.form import button, field
 
 from plone import api
-from plone.directives import form
-from plone.z3cform.layout import wrap_form
+from plone.autoform.form import AutoExtensibleForm
+from plone.supermodel import model
+from z3c.form.form import Form
 
 from Products.statusmessages.interfaces import IStatusMessage
 
@@ -28,7 +29,7 @@ _ = MessageFactory('collective.googleauthenticator')
 PMF = MessageFactory('plone')
 
 
-class ITokenForm(form.Schema):
+class ITokenForm(model.Schema):
     """
     Interface for the Google Authenticator Token validation form.
     """
@@ -40,7 +41,7 @@ class ITokenForm(form.Schema):
         required=True)
 
 
-class TokenForm(form.SchemaForm):
+class TokenForm(AutoExtensibleForm, Form):
     """
     Form for the Google Authenticator Token validation. Any user that has
     two-step verification enabled, uses this form upon logging in.
@@ -146,7 +147,3 @@ class TokenForm(form.SchemaForm):
             )
 
         return super(TokenForm, self).updateFields(*args, **kwargs)
-
-
-# View for the ``TokenForm``.
-TokenFormView = wrap_form(TokenForm)
