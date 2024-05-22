@@ -24,10 +24,7 @@ class SettingsHelper(BrowserView):
         """
         Indicates whether the enable two factor authentication link should be shown.
 
-        The following conditions shall be met for True to be returned:
-
-        - User hasn't enabled the two factor authentication for his account.
-        - In app settings, the globally enable two factor authentication is set to False.
+        True if user hasn't enabled the two factor authentication for their account.
 
         :return bool:
         """
@@ -35,10 +32,7 @@ class SettingsHelper(BrowserView):
             return False  # don't show action to anonymous users
 
         user = api.user.get_current()
-        return (
-            is_two_factor_authentication_globally_enabled() and
-            not has_enabled_two_factor_authentication(user)
-        )
+        return not has_enabled_two_factor_authentication(user)
 
     def show_disable_two_factor_authentication_link(self):
         """
@@ -46,7 +40,7 @@ class SettingsHelper(BrowserView):
 
         The following conditions shall be met for True to be returned:
 
-        - User hasn enabled the two factor authentication for his account.
+        - User has enabled the two factor authentication for their account.
         - In app settings, the globally enable two factor authentication is set to False.
 
         :return bool:
@@ -56,6 +50,6 @@ class SettingsHelper(BrowserView):
 
         user = api.user.get_current()
         return (
-            is_two_factor_authentication_globally_enabled() and
             has_enabled_two_factor_authentication(user)
+            and not is_two_factor_authentication_globally_enabled()
         )
