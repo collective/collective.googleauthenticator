@@ -11,19 +11,21 @@ from z3c.form import button, field
 from plone.autoform.form import AutoExtensibleForm
 from plone.supermodel import model
 from plone import api
-from plone.protect.interfaces import IDisableCSRFProtection
 
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form.form import Form
-from zope.interface import alsoProvides
 from zope.schema import TextLine
 
 from collective.googleauthenticator.helpers import get_qr_code, validate_token
 from collective.googleauthenticator.helpers import disable_csrf_check
+from collective.googleauthenticator.helpers import drop_login_failed_msg
+from collective.googleauthenticator.helpers import validate_user_data
+from collective.googleauthenticator.helpers import extract_request_data
 
 logger = logging.getLogger('collective.googleauthenticator')
 
 _ = MessageFactory('collective.googleauthenticator')
+PMF = MessageFactory('plone')
 
 
 class ISetupForm(model.Schema):
@@ -51,9 +53,39 @@ class SetupForm(AutoExtensibleForm, Form):
                     u"Authenticator app on your phone. This app is available for "
                     u"Android, iOS and BlackBerry devices.")
 
+    @property
+    def user(self):
+        # If already authenticated, use current user
+        user = api.user.get_current()
+        if user.getUserName() != "Anonymous User":
+            return user
+
+        # Otherwise get user from signed request data.
+        username = self.request.get('auth_user', '')
+        if username:
+            user = api.user.get(username=username)
+
+            # Validating the signed request data. If invalid (likely tampered
+            # with or expired), generate an appropriate error message.
+            user_data_validation_result = validate_user_data(
+                request=self.request, user=user)
+            if not user_data_validation_result.result:
+                IStatusMessage(self.request).addStatusMessage(
+                    _("Invalid data. Details: {0}".format(' '.join(
+                        user_data_validation_result.reason))), 'error')
+                return
+            return user
+
+    def action(self):
+        return "{0}?{1}".format(
+            self.request.getURL(),
+            self.request.get('QUERY_STRING', '')
+        )
+
     @button.buttonAndHandler(_('Verify'))
     def handleSubmit(self, action):
-        if bool(api.user.is_anonymous()) is True:
+        user = self.user
+        if user is None:
             self.request.response.setStatus(401, _('Forbidden for anonymous'), True)
             return False
 
@@ -63,20 +95,28 @@ class SetupForm(AutoExtensibleForm, Form):
 
         token = data.get('token', '')
 
-        valid_token = validate_token(token)
+        valid_token = validate_token(token, user=user)
 
         reason = None
         if valid_token:
             try:
                 # Set the ``enable_two_factor_authentication`` to True
-                user = api.user.get_current()
                 user.setMemberProperties(mapping={'enable_two_factor_authentication': True,})
-
                 IStatusMessage(self.request).addStatusMessage(
                     _("Two-step verification is successfully enabled for your account."),
                     'info'
                     )
-                redirect_url = "{0}/@@personal-information".format(self.context.absolute_url())
+                if api.user.get_current().getUserName() != "Anonymous User":
+                    redirect_url = "{0}/@@personal-information".format(self.context.absolute_url())
+                else:
+                    # We should login the user here
+                    self.context.acl_users.session._setupSession(
+                        user.getUserName(), self.context.REQUEST.RESPONSE)
+                    msg = PMF("Welcome! You are now logged in.")
+                    IStatusMessage(self.request).addStatusMessage(msg, 'info')
+                    request_data = extract_request_data(self.request)
+                    context_url = self.context.absolute_url()
+                    redirect_url = request_data.get('next_url', context_url)
             except Exception as e:
                 reason = _(str(e))
         else:
@@ -84,7 +124,7 @@ class SetupForm(AutoExtensibleForm, Form):
 
         if reason is not None:
             IStatusMessage(self.request).addStatusMessage(_("Setup failed! {0}".format(reason)), 'error')
-            redirect_url = "{0}/@@setup-two-factor-authentication".format(self.context.absolute_url())
+            redirect_url = self.action()
 
         self.request.response.redirect(redirect_url)
 
@@ -93,12 +133,18 @@ class SetupForm(AutoExtensibleForm, Form):
         Bar code image is applied here.
         """
         disable_csrf_check()
-        if bool(api.user.is_anonymous()) is False:
 
+        # Drop the "Login failed" message that appears because we consumed
+        # the credentials in our authenticator plugin.
+        request = self.request
+        drop_login_failed_msg(request)
+
+        user = self.user
+        if user is not None:
             # Adding a proper description (with bar code image)
             self.description += (
                 "<label>1. Scan this QR code with the Google Authenticator app</label>" +
-                get_qr_code()
+                get_qr_code(user=user)
             )
 
             return super(SetupForm, self).updateFields(*args, **kwargs)

@@ -90,76 +90,75 @@ class GoogleAuthenticatorPlugin(BasePlugin):
         user = api.user.get(username=login)
         logger.debug("Found user: %r" , user)
 
+        # First see, if the password is correct.
+        # We do this by allowing all IAuthenticationPlugin plugins to
+        # authenticate the credentials, and pick the first one that is
+        # successful.
+        pas_plugins = self._getPAS().plugins
+        auth_plugins = pas_plugins.listPlugins(IAuthenticationPlugin)
+        authorized = None
+        for plugid, authplugin in auth_plugins:
+            if plugid == self.getId():
+                # Avoid infinite recursion
+                continue
+
+            try:
+                authorized = authplugin.authenticateCredentials(
+                    credentials)
+            except _SWALLOWABLE_PLUGIN_EXCEPTIONS:
+                reraise(authplugin)
+                msg = 'AuthenticationPlugin {0} error'.format(plugid)
+                logger.info(msg, exc_info=True)
+                continue
+
+            if authorized is not None:
+                # An auth plugin successfully authenticated the user
+                break
+
+        if authorized is None:
+            # No auth plugin was able to authenticate the user
+            return None
+
+        # Consume the credentials after we verified the credentials above.
+        # We need to do this to prevent later IAuthenticationPlugins
+        # from authenticating the user before we verified the token.
+        # This does produce a "Login failed" status message though that
+        # we need to remove in the token validation view
+        credentials.clear()
+
+        # Redirect based on whether user has 2FA secret already:
+        # - yes -> @@google-authenticator-token
+        # - no -> @@setup-two-factor-authentication
         two_factor_authentication_enabled = user.getProperty(
             'enable_two_factor_authentication')
         logger.debug("Two-step verification enabled: {0}".format(
             two_factor_authentication_enabled))
-
         if two_factor_authentication_enabled:
-            # First see, if the password is correct.
-            # We do this by allowing all IAuthenticationPlugin plugins to
-            # authenticate the credentials, and pick the first one that is
-            # successful.
-            pas_plugins = self._getPAS().plugins
-            auth_plugins = pas_plugins.listPlugins(IAuthenticationPlugin)
-            authorized = None
-            for plugid, authplugin in auth_plugins:
-                if plugid == self.getId():
-                    # Avoid infinite recursion
-                    continue
+            target_path = "@@google-authenticator-token"
+        else:
+            target_path = "@@setup-two-factor-authentication"
 
-                try:
-                    authorized = authplugin.authenticateCredentials(
-                        credentials)
-                except _SWALLOWABLE_PLUGIN_EXCEPTIONS:
-                    reraise(authplugin)
-                    msg = 'AuthenticationPlugin {0} error'.format(plugid)
-                    logger.info(msg, exc_info=True)
-                    continue
+        # Setting the data in the session doesn't seem to work. That's why
+        # we use the `ska` package.
+        # The secret key would be then a combination of username, secret
+        # stored in users' profile and the browser version.
+        request = self.REQUEST
+        response = request['RESPONSE']
+        response.setCookie('__ac', '', path='/')
+        # Redirect to token thing...
+        signed_url = sign_user_data(
+            request=request,
+            user=user,
+            url=f"{api.portal.get().absolute_url()}/{target_path}",
+        )
 
-                if authorized is not None:
-                    # An auth plugin successfully authenticated the user
-                    break
+        came_from_adapter = ICameFrom(request)
+        # Appending possible `came_from`, but give it another name.
+        came_from = came_from_adapter.getCameFrom()
+        if came_from:
+            signed_url = '{0}&next_url={1}'.format(signed_url, came_from)
 
-            if authorized is None:
-                # No auth plugin was able to authenticate the user
-                return None
-
-            # Consume the credentials after we verified the credentials above.
-            # We need to do this to prevent later IAuthenticationPlugins
-            # from authenticating the user before we verified the token.
-            # This does produce a "Login failed" status message though that
-            # we need to remove in the token validation view
-            credentials.clear()
-
-            # Setting the data in the session doesn't seem to work. That's why
-            # we use the `ska` package.
-            # The secret key would be then a combination of username, secret
-            # stored in users' profile and the browser version.
-            request = self.REQUEST
-            response = request['RESPONSE']
-            response.setCookie('__ac', '', path='/')
-            # Redirect to token thing...
-            signed_url = sign_user_data(
-                request=request,
-                user=user,
-                url='{0}/@@google-authenticator-token'.format(
-                    api.portal.get().absolute_url()
-                )
-            )
-
-            came_from_adapter = ICameFrom(request)
-            # Appending possible `came_from`, but give it another name.
-            came_from = came_from_adapter.getCameFrom()
-            if came_from:
-                signed_url = '{0}&next_url={1}'.format(signed_url, came_from)
-
-            response.redirect(signed_url, lock=True)
-            return None
-
-        if credentials.get('extractor') != self.getId():
-            return None
-
+        response.redirect(signed_url, lock=True)
         return None
 
 
