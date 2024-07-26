@@ -2,7 +2,6 @@
 from plone import api
 from plone.app.registry.browser import controlpanel
 from plone.app.registry.browser.controlpanel import RegistryEditForm
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from z3c.form import button
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
@@ -31,16 +30,16 @@ class IGoogleAuthenticatorSettings(Interface):
         )
     globally_enabled = Bool(
         title = _("Globally enabled"),
-        description = _("If checked, globally enables the two-step verification for all users; "
-                        "otherwise - each user configures it himself. Note, that unchecking the "
-                        "checkbox does not disable the two-step verification for all users."),
+        description = _(
+            "If checked, two-step verification will be required for all users. "
+            "If unchecked, two-step verification will be skipped for all users."),
         required = False,
         default = True,
         )
     ip_addresses_whitelist = Text(
-        title = _("White-listed IP addresses"),
-        description = _("Two-step verification will be ommit for users that log in from white "
-                        "listed addresses."),
+        title = _("IP address allowlist"),
+        description = _("Two-step verification will be skipped for users that log in from "
+                        "addresses in the allowlist."),
         required = False,
         default = u'',
         )
@@ -56,44 +55,16 @@ class GoogleAuthenticatorSettingsEditForm(RegistryEditForm):
     label = _("Google Authenticator")
     description = _(u"""Google Authenticator configuration""")
     enable_unload_protection = False
-    additional_template = ViewPageTemplateFile("templates/control_panel_extra.pt")
-
-    def render(self, *args, **kwargs):
-        res = super(GoogleAuthenticatorSettingsEditForm, self).render(*args, **kwargs)
-        additional = self.additional_template(
-            enable_url = '{0}/{1}'.format(self.context.absolute_url(), '@@google-authenticator-enable-for-all-users'),
-            enable_text = _("Enable two-step verification for all users"),
-            disable_url = '{0}/{1}'.format(self.context.absolute_url(), '@@google-authenticator-disable-for-all-users'),
-            disable_text = _("Disable two-step verification for all users"),
-            charset = 'utf-8',
-            )
-        return res + additional
 
     @button.buttonAndHandler(_(u"Save"), name='save')
     def handleSave(self, action):
         """
         Update properties of all users.
         """
-        from collective.googleauthenticator.helpers import (
-            enable_two_factor_authentication_for_users, disable_two_factor_authentication_for_users
-            )
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
             return
-
-        globally_enabled = data.get('globally_enabled', None)
-
-        if globally_enabled is True:
-            # Enable for all users
-            users = api.user.get_users()
-            enable_two_factor_authentication_for_users(users)
-            logger.debug('Enabled')
-        elif globally_enabled is False:
-            # Disable for all users
-            users = api.user.get_users()
-            #disable_two_factor_authentication_for_users(users)
-            logger.debug('Disabled')
 
         changes = self.applyChanges(data)
         api.portal.show_message(_(u"Changes saved."), self.request, "info")
