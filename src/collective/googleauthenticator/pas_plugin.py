@@ -27,10 +27,9 @@ from Products.PluggableAuthService.utils import classImplements
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
-from collective.googleauthenticator.adapter import ICameFrom
 from collective.googleauthenticator.helpers import is_whitelisted_client
-from collective.googleauthenticator.helpers import sign_user_data
 from collective.googleauthenticator.helpers import is_two_factor_authentication_globally_enabled
+from collective.googleauthenticator.helpers import redirect_to_2fa_setup
 
 
 logger = logging.getLogger("collective.googleauthenticator")
@@ -90,8 +89,8 @@ class GoogleAuthenticatorPlugin(BasePlugin):
         if not login:
             return None
 
-        user = api.user.get(username=login)
-        logger.debug("Found user: %r" , user)
+        member = api.user.get(username=login)
+        logger.debug("Found user: %r" , member)
 
         # First see, if the password is correct.
         # We do this by allowing all IAuthenticationPlugin plugins to
@@ -129,39 +128,8 @@ class GoogleAuthenticatorPlugin(BasePlugin):
         # we need to remove in the token validation view
         credentials.clear()
 
-        # Redirect based on whether user has 2FA secret already:
-        # - yes -> @@google-authenticator-token
-        # - no -> @@setup-two-factor-authentication
-        two_factor_authentication_enabled = user.getProperty(
-            'enable_two_factor_authentication')
-        logger.debug("Two-step verification enabled: {0}".format(
-            two_factor_authentication_enabled))
-        if two_factor_authentication_enabled:
-            target_path = "@@google-authenticator-token"
-        else:
-            target_path = "@@setup-two-factor-authentication"
-
-        # Setting the data in the session doesn't seem to work. That's why
-        # we use the `ska` package.
-        # The secret key would be then a combination of username, secret
-        # stored in users' profile and the browser version.
-        request = self.REQUEST
-        response = request['RESPONSE']
-        response.setCookie('__ac', '', path='/')
-        # Redirect to token thing...
-        signed_url = sign_user_data(
-            request=request,
-            user=user,
-            url=f"{api.portal.get().absolute_url()}/{target_path}",
-        )
-
-        came_from_adapter = ICameFrom(request)
-        # Appending possible `came_from`, but give it another name.
-        came_from = came_from_adapter.getCameFrom()
-        if came_from:
-            signed_url = '{0}&next_url={1}'.format(signed_url, came_from)
-
-        response.redirect(signed_url, lock=True)
+        # Redirect the user to 2FA challenge and/or setup
+        redirect_to_2fa_setup(member)
         return None
 
 

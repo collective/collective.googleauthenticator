@@ -1,4 +1,4 @@
-from collective.googleauthenticator.helpers import extract_next_url_from_referer
+from urllib.parse import urlparse
 from zope.interface import implementer
 from zope.interface import Interface
 
@@ -60,4 +60,5 @@ class CameFromAdapter(object):
 
         :return string:
         """
+        from collective.googleauthenticator.helpers import extract_next_url_from_referer
         return extract_next_url_from_referer(self.request)

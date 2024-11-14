@@ -9,7 +9,9 @@ import logging
 import qrcode
 import qrcode.image.svg
 
+from AccessControl.SecurityManagement import newSecurityManager
 from zope.component import getUtility
+from zope.component.hooks import getSite
 from zope.globalrequest import getRequest
 from zope.i18n import translate
 from zope.i18nmessageid import MessageFactory
@@ -27,6 +29,7 @@ from ska import sign_url, validate_signed_request_data
 import ipaddress
 import rebus
 
+from collective.googleauthenticator.adapter import ICameFrom
 from collective.googleauthenticator.browser.controlpanel import IGoogleAuthenticatorSettings
 import six
 
@@ -538,3 +541,60 @@ def drop_login_failed_msg(request):
 def disable_csrf_check():
     request = getRequest()
     alsoProvides(request, IDisableCSRFProtection)
+
+
+def login_user(user):
+    portal = api.portal.get()
+    request = getRequest()
+
+    # Set the active user for this request
+    newSecurityManager(request, user)
+
+    # Add session cookie for future requests
+    portal.acl_users.session._setupSession(user.getId(), request.RESPONSE)
+
+    # Trigger normal post-login processing
+    mtool = api.portal.get_tool("portal_membership")
+    mtool.loginUser()
+
+
+def redirect_to_2fa_setup(member):
+    if not is_two_factor_authentication_globally_enabled():
+        return False
+    if is_whitelisted_client():
+        return False
+
+    # Redirect based on whether user has 2FA secret already:
+    # - yes -> @@google-authenticator-token
+    # - no -> @@setup-two-factor-authentication
+    two_factor_authentication_enabled = member.getProperty(
+        'enable_two_factor_authentication')
+    logger.debug("Two-step verification enabled: {0}".format(
+        two_factor_authentication_enabled))
+    if two_factor_authentication_enabled:
+        target_path = "@@google-authenticator-token"
+    else:
+        target_path = "@@setup-two-factor-authentication"
+
+    # Setting the data in the session doesn't seem to work. That's why
+    # we use the `ska` package.
+    # The secret key would be then a combination of username, secret
+    # stored in users' profile and the browser version.
+    request = getRequest()
+    response = request['RESPONSE']
+    response.setCookie('__ac', '', path='/')
+    # Redirect to token thing...
+    signed_url = sign_user_data(
+        request=request,
+        user=member,
+        url=f"{api.portal.get().absolute_url()}/{target_path}",
+    )
+
+    came_from_adapter = ICameFrom(request)
+    # Appending possible `came_from`, but give it another name.
+    came_from = came_from_adapter.getCameFrom()
+    if came_from:
+        signed_url = '{0}&next_url={1}'.format(signed_url, came_from)
+
+    response.redirect(signed_url, lock=True)
+    return True

@@ -21,6 +21,7 @@ from collective.googleauthenticator.helpers import disable_csrf_check
 from collective.googleauthenticator.helpers import drop_login_failed_msg
 from collective.googleauthenticator.helpers import validate_user_data
 from collective.googleauthenticator.helpers import extract_request_data
+from collective.googleauthenticator.helpers import login_user
 
 logger = logging.getLogger('collective.googleauthenticator')
 
@@ -109,9 +110,7 @@ class SetupForm(AutoExtensibleForm, Form):
                 if api.user.get_current().getUserName() != "Anonymous User":
                     redirect_url = "{0}/@@personal-information".format(self.context.absolute_url())
                 else:
-                    # We should login the user here
-                    self.context.acl_users.session._setupSession(
-                        user.getUserName(), self.context.REQUEST.RESPONSE)
+                    login_user(user.getUser())
                     msg = PMF("Welcome! You are now logged in.")
                     IStatusMessage(self.request).addStatusMessage(msg, 'info')
                     request_data = extract_request_data(self.request)
