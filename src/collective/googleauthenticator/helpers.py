@@ -95,7 +95,7 @@ def get_domain_name(request=None):
     if request is None:
         request = getRequest()
 
-    parsed_uri = urlparse(request.base)
+    parsed_uri = urlparse(request.SERVER_URL)
     return parsed_uri.netloc
 
 
