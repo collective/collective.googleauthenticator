@@ -53,13 +53,12 @@ class SetupForm(AutoExtensibleForm, Form):
     ignoreContext = True
     schema = ISetupForm
     label = _("Setup two-step verification")
-    description = _(
-        "help_2fa_setup",
-        default="To proceed with this two-step verification, "
+    description = (
+        "To proceed with this two-step verification, "
         "the Google Authenticator app must be installed on your phone. "
         "Open your phone's photo app and point the camera at the QR code. "
         "Do NOT take a photo, but click the link that appears. "
-        "This will open Google Authenticator which will then generate a code.",
+        "This will open Google Authenticator which will then generate a code."
     )
 
     @property
@@ -165,7 +164,7 @@ class SetupForm(AutoExtensibleForm, Form):
         if user is not None:
             # Adding a proper description (with bar code image)
             self.description += (
-                "<label>1. Scan this QR code with the Google Authenticator app</label>"
+                "<br /><br/><label>1. Scan this QR code with the Google Authenticator app</label>"
                 + get_qr_code(user=user)
             )
 
